@@ -26,8 +26,25 @@ const map = L.map('map', {
 }).setView([20, 0], 2); 
 
 // This adds a beautiful, clean map style (CartoDB Positron)
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '©OpenStreetMap'
+//L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    //attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    //maxZoom: 19
+//}).addTo(map);
+
+//L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    //ttribution: '©OpenStreetMap',
+    //subdomains: 'abcd',
+    //maxZoom: 20
+//}).addTo(map);
+
+// Replace 'YOUR_MAPBOX_ACCESS_TOKEN' with the key from your dashboard
+const mapboxToken = 'pk.eyJ1Ijoia2llcmFuMDEiLCJhIjoiY21sOGhqemV0MDZ6dDNlc2R5cjJrcTJkeiJ9.F5vZa-aLQr1rcncdRPoVHA';
+
+L.tileLayer(`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`, {
+    tileSize: 512,
+    zoomOffset: -1,
+    id: 'mapbox/outdoors-v12', // Options: 'mapbox/streets-v12', 'mapbox/outdoors-v12', or 'mapbox/satellite-streets-v12'
+    maxZoom: 30
 }).addTo(map);
 
 // Define the Heart Icon
@@ -85,5 +102,22 @@ map.on('locationfound', (e) => {
 
 // If GPS fails (e.g., she hits "Deny")
 map.on('locationerror', (e) => {
-    alert("I couldn't find your location! Please make sure your GPS is on and you've given the site permission.");
+    alert("Give location permissions to your browser my little sea monkey");
 });
+
+// Function to make the notification swipe away after 5 seconds
+setTimeout(() => {
+    const header = document.querySelector('.snap-header');
+    if (header) {
+        // We set the transition first
+        header.style.transition = "transform 0.6s cubic-bezier(0.4, 0, 1, 1)";
+        // Then we move it
+        header.style.transform = "translateY(-250%)";
+        
+        // Optional: Remove it from the "physical" page after it slides out 
+        // so it doesn't block clicks later
+        setTimeout(() => {
+            header.style.display = "none";
+        }, 600); 
+    }
+}, 5000);
