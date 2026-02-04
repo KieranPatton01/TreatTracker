@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuck Verification Portal (cvp)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+    <div class="login-card">
+        <h1>Cuck or Crush? 🌹</h1>
+        <p>Enter the Password for Access</p>
+        <input type="text" id="passInput" placeholder="Who is the Rippler?...">
+            <button onclick="checkPass()">Unlock</button>
+    </div>
+
+    <script>
+        function checkPass() {
+            const pass = document.getElementById('passInput').value.toLowerCase().trim();
+            if (pass) {
+                window.location.href = pass + ".html";
+            }
+        }
+    </script>
+</body>
+</html>

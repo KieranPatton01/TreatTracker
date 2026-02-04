@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Treat Tracker (tt)</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Kiss Map">
+
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Ensuring the map takes up the full mobile viewport */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #fff5f5;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="counter-card" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; color: #ff4d6d; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #ffb6c1;">
+        Kisses: <span id="kiss-count">0</span>
+    </div>
+
+    <div id="map"></div>
+
+    <button id="drop-marker" class="kiss-button">
+        💋 We Kissed Here!
+    </button>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+/* General Setup */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff5f5;
+}
+
+/* Login Page Styling */
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(255, 77, 109, 0.2);
+    text-align: center;
+}
+
+input {
+    padding: 12px;
+    border: 2px solid #ffb6c1;
+    border-radius: 10px;
+    width: 80%;
+    margin-bottom: 15px;
+    outline: none;
+}
+
+button {
+    background: #ff4d6d;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Map Styling */
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+.kiss-button {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.heart-marker {
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+#map {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Prevents weird grey boxes when she taps fast */
+* {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
