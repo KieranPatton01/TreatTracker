@@ -31,10 +31,17 @@ const map = new mapboxgl.Map({
     antialias: true
 });
 
-// Cluster setup
-const index = new Supercluster({ radius: 60, maxZoom: 16 });
-let markers = {}; // To track active markers on screen
-let kissData = []; // To store all kiss coordinates
+// Cluster setup: 
+// Lower radius (e.g., 30) makes them split EARLIER.
+// minPoints: 2 ensures single points NEVER look like clusters.
+const index = new Supercluster({ 
+    radius: 15, 
+    maxZoom: 16,
+    minPoints: 2 
+});
+
+let markers = {}; 
+let kissData = []; 
 
 map.on("load", () => {
     const layers = map.getStyle().layers;
@@ -59,13 +66,11 @@ map.on("load", () => {
 let count = 0;
 const counterDisplay = document.getElementById("kiss-count");
 
-// Function to update markers based on zoom/pan
 function updateMarkers() {
     const bounds = map.getBounds();
     const zoom = Math.floor(map.getZoom());
     const clusters = index.getClusters([bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()], zoom);
 
-    // Remove markers that are no longer visible
     const newMarkers = {};
     clusters.forEach(f => {
         const id = f.id || `p${f.properties.kissId}`;
@@ -75,7 +80,6 @@ function updateMarkers() {
         } else {
             const el = document.createElement("div");
             if (f.properties.cluster) {
-                // IT'S A CLUSTER
                 el.className = "marker cluster-marker";
                 el.innerHTML = `<span>${f.properties.point_count}</span>`;
                 el.style.background = "#ff4d6d";
@@ -85,9 +89,14 @@ function updateMarkers() {
                 el.style.height = "40px";
                 el.style.border = "2px solid white";
             } else {
-                // IT'S A SINGLE KISS
                 el.className = "marker";
-                el.innerHTML = "❤️";
+                // logic for first kiss
+                if (f.properties.kissId === 1) {
+                    el.classList.add("first-kiss");
+                    el.innerHTML = "👑";
+                } else {
+                    el.innerHTML = "❤️";
+                }
             }
 
             const m = new mapboxgl.Marker({ element: el })
@@ -95,7 +104,8 @@ function updateMarkers() {
                 .addTo(map);
             
             if (!f.properties.cluster) {
-                m.setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`💋 Kissed here on ${f.properties.date}`));
+                const prefix = f.properties.kissId === 1 ? "🌟 THE VERY FIRST: " : "";
+                m.setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`💋 ${prefix}Kissed here on ${f.properties.date}`));
             }
             newMarkers[id] = m;
         }
@@ -110,7 +120,6 @@ onChildAdded(kissesRef, (snapshot) => {
     count++;
     if (counterDisplay) counterDisplay.innerText = count;
 
-    // Add to clustering index
     kissData.push({
         type: 'Feature',
         properties: { cluster: false, kissId: count, date: data.date },
@@ -122,7 +131,7 @@ onChildAdded(kissesRef, (snapshot) => {
 
 map.on('moveend', updateMarkers);
 
-// 5. THE BUTTON LOGIC (Vibrate + Location)
+// 5. THE BUTTON LOGIC
 document.getElementById("drop-marker").addEventListener("click", () => {
     if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
 
@@ -164,7 +173,6 @@ if (menuBtn && menuDropdown) {
     document.getElementById('about-btn').addEventListener('click', () => alert("Treat Tracker v2.0"));
 }
 
-// 8. SERVICE WORKER
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js").catch(() => {});

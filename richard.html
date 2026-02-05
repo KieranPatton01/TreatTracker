@@ -43,52 +43,13 @@
                 width: 100%;
                 z-index: 1;
             }
-
-            /* Hamburger Styles */
-            .menu-dropdown a {
-                display: block;
-                padding: 12px 20px;
-                color: #555;
-                text-decoration: none;
-                font-size: 14px;
-                border-bottom: 1px solid #fff5f5;
-                transition: background 0.2s;
-            }
-            .menu-dropdown a:last-child { border-bottom: none; }
-            .menu-dropdown a:active { background: #fff5f5; }
-            .menu-dropdown a.logout { color: #ff4d6d; font-weight: bold; }
         </style>
     </head>
     <body>
 
         <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
-            <button id="menu-btn" style="
-                background: white; 
-                border: 1px solid #ffb6c1; 
-                border-radius: 50%; 
-                width: 45px; 
-                height: 45px; 
-                font-size: 20px; 
-                cursor: pointer; 
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-                color: #ff4d6d;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            ">☰</button>
-            
-            <div id="menu-dropdown" class="menu-dropdown" style="
-                display: none; 
-                position: absolute; 
-                top: 55px; 
-                left: 0; 
-                background: white; 
-                border-radius: 15px; 
-                width: 160px; 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
-                overflow: hidden; 
-                border: 1px solid #ffb6c1;
-            ">
+            <button id="menu-btn">☰</button>
+            <div id="menu-dropdown" class="menu-dropdown">
                 <a href="#" id="stats-btn">📊 Kiss Stats</a>
                 <a href="#" id="help-btn">❓ Help</a>
                 <a href="#" id="about-btn">🏷️ About</a>
@@ -96,24 +57,11 @@
             </div>
         </div>
 
-        <div id="counter-card" style="
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 1000;
-                background: white;
-                padding: 10px 20px;
-                border-radius: 20px;
-                font-weight: bold;
-                color: #ff4d6d;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                border: 1px solid #ffb6c1;
-            ">
+        <div id="kiss-count-container">
             Kisses: <span id="kiss-count">0</span>
         </div>
 
-        <div id="notification-wrapper" style="z-index: 1001; position: relative">
+        <div id="notification-wrapper">
             <div class="snap-header">
                 <div class="snap-profile-pic">💋</div>
                 <div class="snap-info">
@@ -125,7 +73,7 @@
 
         <div id="map"></div>
 
-        <button id="drop-marker" class="kiss-button" style="z-index: 1000">💋</button>
+        <button id="drop-marker">💋</button>
 
         <script type="module" src="script.js"></script>
     </body>
