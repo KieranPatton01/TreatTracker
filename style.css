@@ -1,104 +1,146 @@
-/* General Setup */
+/* =========================================
+   1. GENERAL SETUP & MOBILE FIXES
+   ========================================= */
+* {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    box-sizing: border-box;
+}
+
 body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: #fff5f5;
+    overflow: hidden;
 }
 
-/* Login Page Styling */
+/* =========================================
+   2. LOGIN PORTAL (index.html)
+   ========================================= */
 .login-body {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
 }
 
 .login-card {
     background: white;
     padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(255, 77, 109, 0.2);
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(255, 77, 109, 0.2);
     text-align: center;
+    width: 90%;
+    max-width: 400px;
 }
 
-input {
-    padding: 12px;
-    border: 2px solid #ffb6c1;
-    border-radius: 10px;
-    width: 80%;
-    margin-bottom: 15px;
+.login-card h1 { 
+    color: #ff4d4d; 
+    margin-bottom: 10px; 
+}
+
+.login-card input {
+    width: 100%;
+    padding: 15px;
+    margin: 20px 0;
+    border: 2px solid #eee;
+    border-radius: 50px;
+    font-size: 16px;
+    text-align: center;
     outline: none;
 }
 
-button {
-    background: #ff4d6d;
+.login-card button {
+    width: 100%;
+    padding: 15px;
+    background: #ff4d4d;
     color: white;
-    padding: 12px 25px;
     border: none;
-    border-radius: 10px;
+    border-radius: 50px;
+    font-size: 18px;
     font-weight: bold;
     cursor: pointer;
+    transition: 0.3s;
 }
 
-/* Map Styling */
+.login-card button:active { transform: scale(0.95); }
+
+/* =========================================
+   3. MAP UI (richard.html)
+   ========================================= */
 #map {
-    height: 100%;
-    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
 }
 
-/* Make the button feel like a Snapchat UI element */
-.kiss-button {
-    background-color: #FFFC00; /* Snapchat Yellow */
-    color: black;              /* Black text for contrast */
-    border-radius: 15px;       /* Slightly squared-rounded edges */
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    border: 3px solid #000;    /* Thick border like Snap's interface */
-    padding: 12px 24px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 4px 4px 0px #000; /* Hard shadow style */
-}
-
-/* Optional: Pulse effect so she knows to click it */
-@keyframes pulse {
-    0% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.05); }
-    100% { transform: translateX(-50%) scale(1); }
-}
-
-.kiss-button {
-    animation: pulse 2s infinite ease-in-out;
-}
-
-.heart-marker {
+/* 3D Marker Styling */
+.marker {
     font-size: 30px;
     background: white;
     border-radius: 50%;
-    width: 45px !important;
-    height: 45px !important;
+    width: 45px;
+    height: 45px;
     display: flex;
     justify-content: center;
     align-items: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     border: 2px solid #ff4d6d;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
 
-#map {
-    width: 100vw;
-    height: 100vh;
+.marker:hover { transform: scale(1.2); }
+
+/* SNAPCHAT BUTTON: "WE KISSED!" */
+#drop-marker {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    background-color: #FFFC00; /* Snap Yellow */
+    border: 4px solid #000;
+    border-radius: 50%;
+    font-size: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 8px 0px #000;
+    z-index: 1000;
+    outline: none;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+#drop-marker:active {
+    box-shadow: 0 2px 0px #000;
+    transform: translateX(-50%) translateY(4px);
+}
+
+#drop-marker::before {
+    content: "WE KISSED!";
     position: absolute;
-    top: 0;
-    left: 0;
+    top: -35px;
+    background: #000;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 4px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
 }
 
-/* Prevents weird grey boxes when she taps fast */
-* {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-}
-
+/* =========================================
+   4. SNAPCHAT NOTIFICATION HEADER
+   ========================================= */
 #notification-wrapper {
     position: fixed;
     top: 0;
@@ -107,7 +149,7 @@ button {
     display: flex;
     justify-content: center;
     z-index: 2000;
-    pointer-events: none; /* Allows you to still click the map behind it */
+    pointer-events: none;
 }
 
 .snap-header {
@@ -122,39 +164,14 @@ button {
     align-items: center;
     padding: 0 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    pointer-events: auto; /* Re-enables clicking for the header itself */
-    
-/* Change 'forwards' to 'none' or simply remove 'forwards' */
+    pointer-events: auto;
     animation: slideDown 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    
-    /* This ensures it stays visible after the animation ends but before JS kicks in */
-    transform: translateY(0);
-}
-
-@keyframes slideDown {
-    0% { transform: translateY(-150%); }
-    100% { transform: translateY(0); }
-}
-
-/* Make the green dot blink like a real "Live" feed */
-.snap-status {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 11px;
-    font-weight: 800;
-    color: #00cc00;
-    animation: blink 2s infinite;
-}
-
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.4; }
-    100% { opacity: 1; }
 }
 
 .snap-profile-pic {
     width: 40px;
     height: 40px;
-    background: #FFFC00; /* Snapchat Yellow */
+    background: #FFFC00;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -164,78 +181,38 @@ button {
     border: 2px solid #000;
 }
 
-.snap-info {
-    display: flex;
-    flex-direction: column;
-}
+.snap-info { display: flex; flex-direction: column; }
 
-.snap-title {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    font-size: 16px;
-    color: #000;
-}
+.snap-title { font-weight: 800; font-size: 16px; color: #000; }
 
 .snap-status {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 11px;
-    font-weight: 600;
-    color: #00cc00; /* Live green color */
+    font-weight: 800;
+    color: #00cc00;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    animation: blink 2s infinite;
 }
 
-#drop-marker {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 80px;
-    background-color: #FFFC00; /* Snap Yellow */
-    border: 4px solid #000;
-    border-radius: 50%; /* Makes it a circle */
-    font-size: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 8px 0px #000; /* Thick "pop-art" shadow */
-    z-index: 1000;
-    transition: all 0.1s ease;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
+/* =========================================
+   5. ANIMATIONS
+   ========================================= */
+@keyframes slideDown {
+    0% { transform: translateY(-150%); }
+    100% { transform: translateY(0); }
 }
 
-/* The "Push" effect when she taps it */
-#drop-marker:active {
-    box-shadow: 0 2px 0px #000;
-    transform: translateX(-50%) translateY(4px);
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
 }
 
-/* Optional: Label above the button */
-#drop-marker::before {
-    content: "WE KISSED!";
-    position: absolute;
-    top: -35px;
-    background: #000;
-    color: #fff;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 10px;
-    font-weight: 900;
-    padding: 4px 8px;
-    border-radius: 10px;
-    white-space: nowrap;
+@keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
 }
 
-/* This is the nuclear option - it hides the entire attribution box */
-.leaflet-bottom.leaflet-right {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-}
-
-/* Just in case it tries to move to the left */
-.leaflet-bottom.leaflet-left .leaflet-control-attribution {
+/* Hides Mapbox Logo/Attr for a cleaner look if desired */
+.mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right {
     display: none !important;
 }

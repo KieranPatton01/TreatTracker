@@ -13,11 +13,17 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+    
     <link rel="stylesheet" href="style.css">
+    
+     <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#ff4d6d" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <style>
-        /* Ensuring the map takes up the full mobile viewport */
         body, html {
             margin: 0;
             padding: 0;
@@ -26,8 +32,11 @@
             overflow: hidden;
             background-color: #fff5f5;
         }
+        /* Mapbox needs position: absolute to behave correctly on mobile */
         #map {
-            height: 100%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
             width: 100%;
             z-index: 1;
         }
@@ -39,24 +48,22 @@
         Kisses: <span id="kiss-count">0</span>
     </div>
     
-<div id="notification-wrapper">
-    <div class="snap-header">
-        <div class="snap-profile-pic">💋</div>
-        <div class="snap-info">
-            <span class="snap-title">Treat Tracker 1.0</span>
-            <span class="snap-status">● Morag is typing..</span>
+    <div id="notification-wrapper" style="z-index: 1001; position: relative;">
+        <div class="snap-header">
+            <div class="snap-profile-pic">💋</div>
+            <div class="snap-info">
+                <span class="snap-title">Treat Tracker 1.0</span>
+                <span class="snap-status">● Morag is typing..</span>
+            </div>
         </div>
     </div>
-</div>
      
     <div id="map"></div>
 
-    <button id="drop-marker" class="kiss-button">
+    <button id="drop-marker" class="kiss-button" style="z-index: 1000;">
         💋 
     </button>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script type="module" src="script.js"></script>
 
 </body>
