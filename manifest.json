@@ -1,21 +1,23 @@
 {
-  "short_name": "TreatTracker",
-  "name": "Treat Tracker: Kiss Map",
-  "description": "Tracking our kisses forever.",
-  "icons": [
-    {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "start_url": "/index.html",
-  "display": "standalone",
-  "theme_color": "#ff07e2",
-  "background_color": "#fff5f5"
+    "short_name": "TreatTracker",
+    "name": "Treat Tracker",
+    "description": "Tracking our kisses until I break up with you.",
+    "icons": [
+        {
+            "src": "icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/richard.html",
+    "display": "standalone",
+    "theme_color": "#ff07e2",
+    "background_color": "#fff5f5",
+    "orientation": "portrait",
+    "scope": "/"
 }
