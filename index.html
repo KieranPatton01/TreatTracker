@@ -31,25 +31,16 @@
 
         function checkPass() {
             const input = document.getElementById('passInput').value.toLowerCase().trim();
-        if (input) {
-        // This will try to go to the page. 
-        // If "input.html" doesn't exist, GitHub automatically shows 404.html
-        window.location.href = input + ".html";
-    } else {
-        alert("Please enter a hint!");
-    }
-}
+            if (input) {
+                // 1. SAVE the login state so richard.html lets them in
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                // 2. Redirect to the page (e.g., richard.html)
+                window.location.href = input + ".html";
+            } else {
+                alert("Please enter a hint!");
+            }
+        }
     </script>
 </body>
 </html>
-
-<!--/* TODO /*
-/* ensure that password container is big enough on mobile */
-/* add cool styling/animation/images to index */
-/* set login as password field */
-/* start map zoomed in */
-/* change heart icon maybe to her face/kiss/date. add different types */
-/* database security/backup */
-/* increase size of we kissed here button */
-fire base api protection via google cloud
--->

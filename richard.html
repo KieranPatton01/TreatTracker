@@ -1,70 +1,132 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Treat Tracker (tt)</title>
+    <head>
+        <script>
+            // THE GATEKEEPER: Kicks out anyone not logged in
+            (function () {
+                const loggedIn = localStorage.getItem("isLoggedIn");
+                if (loggedIn !== "true") {
+                    window.location.replace("index.html");
+                }
+            })();
+        </script>
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Kiss Map">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>Treat Tracker (tt)</title>
 
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Kiss Map" />
+        <link rel="apple-touch-icon" href="icon.png" />
+        <link rel="icon" type="image/png" href="icon.png" />
 
-    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
-    
-    <link rel="stylesheet" href="style.css">
-    
-     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#ff4d6d" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+        <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
 
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background-color: #fff5f5;
-        }
-        /* Mapbox needs position: absolute to behave correctly on mobile */
-        #map {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
-            z-index: 1;
-        }
-    </style>
-</head>
-<body>
+        <link rel="stylesheet" href="style.css" />
+        <link rel="manifest" href="manifest.json" />
+        <meta name="theme-color" content="#ff4d6d" />
 
-    <div id="counter-card" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; color: #ff4d6d; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #ffb6c1;">
-        Kisses: <span id="kiss-count">0</span>
-    </div>
-    
-    <div id="notification-wrapper" style="z-index: 1001; position: relative;">
-        <div class="snap-header">
-            <div class="snap-profile-pic">💋</div>
-            <div class="snap-info">
-                <span class="snap-title">Treat Tracker 2.0</span>
-                <span class="snap-status">● Morag is typing..</span>
+        <style>
+            body, html {
+                margin: 0; padding: 0;
+                height: 100%; width: 100%;
+                overflow: hidden;
+                background-color: #fff5f5;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            }
+            #map {
+                position: absolute;
+                top: 0; bottom: 0;
+                width: 100%;
+                z-index: 1;
+            }
+
+            /* Hamburger Styles */
+            .menu-dropdown a {
+                display: block;
+                padding: 12px 20px;
+                color: #555;
+                text-decoration: none;
+                font-size: 14px;
+                border-bottom: 1px solid #fff5f5;
+                transition: background 0.2s;
+            }
+            .menu-dropdown a:last-child { border-bottom: none; }
+            .menu-dropdown a:active { background: #fff5f5; }
+            .menu-dropdown a.logout { color: #ff4d6d; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+
+        <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
+            <button id="menu-btn" style="
+                background: white; 
+                border: 1px solid #ffb6c1; 
+                border-radius: 50%; 
+                width: 45px; 
+                height: 45px; 
+                font-size: 20px; 
+                cursor: pointer; 
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+                color: #ff4d6d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            ">☰</button>
+            
+            <div id="menu-dropdown" class="menu-dropdown" style="
+                display: none; 
+                position: absolute; 
+                top: 55px; 
+                left: 0; 
+                background: white; 
+                border-radius: 15px; 
+                width: 160px; 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+                overflow: hidden; 
+                border: 1px solid #ffb6c1;
+            ">
+                <a href="#" id="stats-btn">📊 Kiss Stats</a>
+                <a href="#" id="help-btn">❓ Help</a>
+                <a href="#" id="about-btn">🏷️ About</a>
+                <a href="#" id="logout-btn" class="logout">🚪 Log Out</a>
             </div>
         </div>
-    </div>
-     
-    <div id="map"></div>
 
-    <button id="drop-marker" class="kiss-button" style="z-index: 1000;">
-        💋 
-    </button>
+        <div id="counter-card" style="
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1000;
+                background: white;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-weight: bold;
+                color: #ff4d6d;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                border: 1px solid #ffb6c1;
+            ">
+            Kisses: <span id="kiss-count">0</span>
+        </div>
 
-    <script type="module" src="script.js"></script>
+        <div id="notification-wrapper" style="z-index: 1001; position: relative">
+            <div class="snap-header">
+                <div class="snap-profile-pic">💋</div>
+                <div class="snap-info">
+                    <span class="snap-title">Treat Tracker 2.0</span>
+                    <span class="snap-status">● Morag is typing..</span>
+                </div>
+            </div>
+        </div>
 
-</body>
+        <div id="map"></div>
+
+        <button id="drop-marker" class="kiss-button" style="z-index: 1000">💋</button>
+
+        <script type="module" src="script.js"></script>
+    </body>
 </html>
