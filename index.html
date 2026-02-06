@@ -2,26 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log In • Treat Tracker</title>
-    
-    <link rel="manifest" href="./manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Treat Tracker">
-    <link rel="apple-touch-icon" href="./icon.png">
-    <meta name="theme-color" content="#fff5f5">
-
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/login.css">
     <style>
         body { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+        
         .login-card h1 { font-weight: 900; letter-spacing: -1px; }
-        .input-group label { font-weight: 800; color: #1d1d1d; font-size: 12px; letter-spacing: 1px; }
-        .input-group input { font-weight: 400; color: #000; }
-        .login-footer { margin-top: 25px; text-align: center; width: 100%; }
-        .footer-text { color: black; font-size: 13px; font-weight: 500; white-space: nowrap; }
-        .footer-text a { color: #ff4d6d; text-decoration: none; font-weight: bold; }
+        
+        .input-group label { 
+            font-weight: 800; 
+            color: #1d1d1d; 
+            font-size: 12px; 
+            letter-spacing: 1px; 
+        }
+        
+        .input-group input { 
+            font-weight: 400; 
+            color: #000; 
+        }
+        
+        /* Footer Styling Updates */
+        .footer-container {
+            margin-top: 25px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .footer-text { 
+            font-size: 13px; 
+            color: black; /* Black text as requested */
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .footer-text a { 
+            color: #ff4d6d; /* Pink for Contact Us */
+            text-decoration: none; /* No underline */
+            font-weight: bold; 
+        }
     </style>
 </head>
 <body class="login-body">
@@ -29,6 +49,7 @@
         <div id="bitmoji-container" class="snap-logo-box">
             <span id="placeholder-icon" style="font-size: 60px;">🌹</span>
         </div>
+        
         <div class="login-card">
             <h1>Log In</h1>
             <div class="input-group">
@@ -41,26 +62,25 @@
             </div>
             <button id="unlockBtn">Log In</button>
         </div>
-        <div class="login-footer">
+
+        <div class="footer-container">
             <p class="footer-text">Don't have an account? <a href="mailto:admin@treattracker.com">Contact Us</a></p>
         </div>
     </div>
+
     <script type="module">
         import { handleLogin } from './js/auth.js';
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW registered!', reg))
-                .catch(err => console.log('SW failed', err));
-        }
-
         const nameInput = document.getElementById('nameInput');
         const bitmojiDiv = document.getElementById('bitmoji-container');
-        const userAvatars = { "kieran": "10226724-246135883_7-s5-v1", "libby": "37237988-100513394046_2416-s5-v1", "isla": "37237988-139859680_123-s5-v1" };
+        const userAvatars = {
+            "kieran": "10226724-246135883_7-s5-v1",
+            "libby": "37237988-100513394046_2416-s5-v1",
+            "isla": "37237988-139859680_123-s5-v1"
+        };
         nameInput.addEventListener('input', (e) => {
             const name = e.target.value.toLowerCase().trim();
             if (userAvatars[name]) {
-                bitmojiDiv.innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[name]}.webp?trim=circle&scale=0&ua=2" style="width:100px; border-radius:50%;">`;
+                bitmojiDiv.innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[name]}.webp?trim=circle&scale=0&ua=2" style="width:100px; height:100px; border-radius:50%;">`;
             } else {
                 bitmojiDiv.innerHTML = `<span style="font-size: 60px;">🌹</span>`;
             }

@@ -8,40 +8,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Treat Tracker</title>
-
-    <link rel="manifest" href="./manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Treat Tracker">
-    <link rel="apple-touch-icon" href="./icon.png">
-    <meta name="theme-color" content="#ffffff">
-
+    
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/map.css" />
-
-    <style>
-        /* Fix 4: Force Mapbox geolocate button to align with custom menu */
-        .mapboxgl-ctrl-top-right {
-            top: 10px !important;
-            right: 60px !important; /* Adjusts space between geolocate and hamburger */
-        }
-        
-        /* Fix 7: Allow clicking through the user location blue circle */
-        .mapboxgl-user-location-dot,
-        .mapboxgl-user-location-accuracy-circle {
-            pointer-events: none !important;
-        }
-
-        /* Ensure modals are hidden by default */
-        .custom-modal, .modal-overlay {
-            display: none;
-        }
-    </style>
 </head>
 <body>
+
+    <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
+        <button id="menu-btn">☰</button>
+        <div id="menu-dropdown" class="menu-dropdown">
+            <a href="#" id="view-stats">🏆 Kiss Leaderboard</a>
+            <a href="game.html">🍓 Catch the Tart</a>
+            <a href="https://github.com/KieranPatton01/TreatTracker" target="_blank">💻 View on GitHub</a>
+            <a href="#" id="view-help">❓ How to use</a>
+            <hr style="border: 0.5px solid #eee; margin: 5px 0;">
+            <a href="#" id="logout-btn" class="logout" style="color: #ff4d6d;">🚪 Log Out</a>
+        </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay"></div>
+    
+    <div id="stats-modal" class="custom-modal">
+        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Smoocher Board</h2>
+        <div id="stats-content">Counting...</div>
+        <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Close</button>
+    </div>
+
+    <div id="help-modal" class="custom-modal">
+        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Quick Tutorial</h2>
+        <div style="text-align: left; font-size: 14px; line-height: 1.6; color: #444;">
+            <p>📍 <b>Dropping Kisses:</b> Tap the 💋 button at the bottom to mark a kiss at your current map center.</p>
+            <p>👑 <b>The Crown:</b> The oldest kiss on the map wears a crown!</p>
+            <p>🏆 <b>Leaderboard:</b> Check the menu to see who is winning the smooch race!</p>
+        </div>
+        <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Got it!</button>
+    </div>
+
     <div id="kiss-count-container">Kisses: <span id="kiss-count">0</span></div>
 
     <div id="notification-wrapper">
@@ -54,190 +60,71 @@
         </div>
     </div>
 
-    <div id="menu-wrapper">
-        <button id="menu-btn">☰</button>
-        <div id="menu-dropdown" class="menu-dropdown">
-            <a href="#" id="view-stats">🏆 Kiss Leaderboard</a>
-            <a href="game.html">🍓 Catch the Tart</a>
-            <a href="https://github.com/KieranPatton01/TreatTracker" target="_blank">💻 View on GitHub</a>
-            <a href="#" id="view-help">❓ How to use</a>
-            <a href="#" id="logout-btn" style="color: #ff4d6d;">🚪 Log Out</a>
-        </div>
-    </div>
-
-    <div id="modal-overlay" class="modal-overlay"></div>
-    
-    <div id="stats-modal" class="custom-modal">
-        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Smoocher Board</h2>
-        <div id="stats-content">Counting...</div>
-        <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold;">Close</button>
-    </div>
-
-    <div id="help-modal" class="custom-modal">
-        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">How to use</h2>
-        <p style="color: #333; line-height: 1.5;">Tap the 💋 button to zoom to your location and drop a kiss! Use the top right button to find yourself. The oldest kiss gets the 👑.</p>
-        <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold;">Got it!</button>
-    </div>
-
     <div id="map"></div>
     <button id="drop-marker">💋</button>
 
     <script type="module">
         import { logout } from './js/auth.js';
-        import { mapboxToken } from './js/config.js'; 
         import { initMap, listenForKisses, dropKiss } from './js/database.js';
 
-        mapboxgl.accessToken = mapboxToken;
-        
-        // Fix 5: Use streets style and add 3D buildings manually for consistent Snapmaps look
-        const map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v12', 
-            center: [-3.1883, 55.9533],
-            zoom: 15.5,
-            pitch: 60, // Increased tilt for better 3D effect
-            bearing: -17.6,
-            antialias: true
-        });
-
-        // Fix 5 continued: Add 3D buildings layer when style loads
-        map.on('style.load', () => {
-            // Insert the layer beneath any symbol layer.
-            const layers = map.getStyle().layers;
-            const labelLayerId = layers.find(
-                (layer) => layer.type === 'symbol' && layer.layout['text-field']
-            ).id;
-
-            map.addLayer(
-                {
-                    'id': 'add-3d-buildings',
-                    'source': 'composite',
-                    'source-layer': 'building',
-                    'filter': ['==', 'extrude', 'true'],
-                    'type': 'fill-extrusion',
-                    'minzoom': 15,
-                    'paint': {
-                        'fill-extrusion-color': '#aaa',
-                        'fill-extrusion-height': [
-                            'interpolate',
-                            ['linear'],
-                            ['zoom'],
-                            15,
-                            0,
-                            15.05,
-                            ['get', 'height']
-                        ],
-                        'fill-extrusion-base': [
-                            'interpolate',
-                            ['linear'],
-                            ['zoom'],
-                            15,
-                            0,
-                            15.05,
-                            ['get', 'min_height']
-                        ],
-                        'fill-extrusion-opacity': 0.6
-                    }
-                },
-                labelLayerId
-            );
-        });
-
-        // Add "Find My Location" control
-        const geolocateControl = new mapboxgl.GeolocateControl({
-            positionOptions: { enableHighAccuracy: true },
-            trackUserLocation: true,
-            showUserHeading: true
-        });
-        map.addControl(geolocateControl, 'top-right');
-
+        const map = initMap();
         const user = localStorage.getItem('currentUsername') || "guest";
-        const userAvatars = { "kieran": "10226724-246135883_7-s5-v1", "libby": "37237988-100513394046_2416-s5-v1", "isla": "37237988-139859680_123-s5-v1" };
+        const userAvatars = {
+            "kieran": "10226724-246135883_7-s5-v1",
+            "libby": "37237988-100513394046_2416-s5-v1",
+            "isla": "37237988-139859680_123-s5-v1"
+        };
 
-        // Banner Logic
+        // UI Element Selection
+        const overlay = document.getElementById('modal-overlay');
+        const statsModal = document.getElementById('stats-modal');
+        const helpModal = document.getElementById('help-modal');
+        const mBtn = document.getElementById('menu-btn');
+        const mDrop = document.getElementById('menu-dropdown');
+
+        // Setup Bitmoji
         if (userAvatars[user.toLowerCase()]) {
             document.getElementById('user-bitmoji-small').innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[user.toLowerCase()]}.webp?trim=circle&scale=0&ua=2" style="width:100%; border-radius:50%;">`;
         }
         document.getElementById('welcome-text').innerText = `${user.toUpperCase()} IS TYPING...`;
-        setTimeout(() => { 
-            const banner = document.getElementById("login-banner");
-            if(banner) banner.classList.add("hidden"); 
-        }, 5000);
 
         listenForKisses(map, (stats) => {
             const content = document.getElementById('stats-content');
-            if (!content) return;
             content.innerHTML = '';
             Object.entries(stats).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
-                content.innerHTML += `<div class="stats-row" style="display:flex; align-items:center; margin:10px 0;"><span style="flex:1; text-align:left; font-weight:bold; text-transform:capitalize;">${name}</span><strong>${count}</strong></div>`;
+                const bitID = userAvatars[name.toLowerCase()];
+                const imgTag = bitID ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2" style="width:40px; height:40px; border-radius:50%;">` : `👤`;
+                content.innerHTML += `<div class="stats-row" style="display:flex; align-items:center; margin:10px 0;">${imgTag}<span style="flex:1; text-align:left; margin-left:15px; font-weight:bold;">${name}</span><strong>${count}</strong></div>`;
             });
         });
 
-        // Fix 6: Drop Marker with ZOOM THEN drop logic
+        // Drop Kiss Action with Confetti
         document.getElementById("drop-marker").onclick = () => {
-            // Trigger the geolocate control to find location
-            geolocateControl.trigger();
-
-            // Wait for the geolocation to successfully complete
-            geolocateControl.once('geolocate', (e) => {
-                const lng = e.coords.longitude;
-                const lat = e.coords.latitude;
-
-                // Fly to the location
-                map.flyTo({
-                    center: [lng, lat],
-                    zoom: 18, // Closer zoom
-                    essential: true,
-                    speed: 1.5 // Ensure it's not instant
-                });
-
-                // Wait until the flyTo animation has finished before dropping the kiss
-                map.once('moveend', () => {
-                    dropKiss(map, user, lat, lng);
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 }, colors: ['#ff4d6d', '#ffffff'] });
-                });
+            dropKiss(map, user);
+            // Trigger Confetti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.8 },
+                colors: ['#ff4d6d', '#ffffff', '#ffb6c1']
             });
         };
-        
-        // UI Event Handlers
+
         document.getElementById('logout-btn').onclick = logout;
-        const mBtn = document.getElementById('menu-btn');
-        const mDrop = document.getElementById('menu-dropdown');
-        const overlay = document.getElementById('modal-overlay');
-        const statsModal = document.getElementById('stats-modal');
-        const helpModal = document.getElementById('help-modal');
 
-        function closeAllModals() {
-            statsModal.style.display = 'none';
-            helpModal.style.display = 'none';
-            overlay.style.display = 'none';
-        }
+        // Menu Toggle
+        mBtn.onclick = (e) => { e.stopPropagation(); mDrop.style.display = mDrop.style.display === 'block' ? 'none' : 'block'; };
 
-        mBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            mDrop.style.display = mDrop.style.display === 'block' ? 'none' : 'block'; 
-        };
+        // Modal Logic
+        document.getElementById('view-stats').onclick = () => { statsModal.style.display = 'block'; overlay.style.display = 'block'; mDrop.style.display = 'none'; };
+        document.getElementById('view-help').onclick = () => { helpModal.style.display = 'block'; overlay.style.display = 'block'; mDrop.style.display = 'none'; };
         
-        // Fix 2: Ensure modal toggles work
-        document.getElementById('view-stats').onclick = (e) => { 
-            e.stopPropagation();
-            closeAllModals();
-            statsModal.style.display = 'block'; 
-            overlay.style.display = 'block'; 
-            mDrop.style.display = 'none'; 
-        };
-        
-        document.getElementById('view-help').onclick = (e) => { 
-            e.stopPropagation();
-            closeAllModals();
-            helpModal.style.display = 'block'; 
-            overlay.style.display = 'block'; 
-            mDrop.style.display = 'none'; 
-        };
-        
-        document.querySelectorAll('.close-btn').forEach(b => b.onclick = closeAllModals);
-        overlay.onclick = closeAllModals;
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.onclick = () => { statsModal.style.display = 'none'; helpModal.style.display = 'none'; overlay.style.display = 'none'; };
+        });
+
         document.onclick = () => { mDrop.style.display = 'none'; };
+        setTimeout(() => { document.getElementById("login-banner").classList.add("hidden"); }, 7000); 
     </script>
 </body>
 </html>
