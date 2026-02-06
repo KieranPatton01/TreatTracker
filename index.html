@@ -6,12 +6,50 @@
     <title>Log In • Treat Tracker</title>
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/login.css">
+    <style>
+        body { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+        
+        .login-card h1 { font-weight: 900; letter-spacing: -1px; }
+        
+        .input-group label { 
+            font-weight: 800; 
+            color: #1d1d1d; 
+            font-size: 12px; 
+            letter-spacing: 1px; 
+        }
+        
+        .input-group input { 
+            font-weight: 400; 
+            color: #000; 
+        }
+        
+        /* Footer Styling Updates */
+        .footer-container {
+            margin-top: 25px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .footer-text { 
+            font-size: 13px; 
+            color: black; /* Black text as requested */
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .footer-text a { 
+            color: #ff4d6d; /* Pink for Contact Us */
+            text-decoration: none; /* No underline */
+            font-weight: bold; 
+        }
+    </style>
 </head>
 <body class="login-body">
     <div class="login-container">
         <div id="bitmoji-container" class="snap-logo-box">
             <span id="placeholder-icon" style="font-size: 60px;">🌹</span>
         </div>
+        
         <div class="login-card">
             <h1>Log In</h1>
             <div class="input-group">
@@ -24,7 +62,12 @@
             </div>
             <button id="unlockBtn">Log In</button>
         </div>
+
+        <div class="footer-container">
+            <p class="footer-text">Don't have an account? <a href="mailto:admin@treattracker.com">Contact Us</a></p>
+        </div>
     </div>
+
     <script type="module">
         import { handleLogin } from './js/auth.js';
         const nameInput = document.getElementById('nameInput');
@@ -37,8 +80,7 @@
         nameInput.addEventListener('input', (e) => {
             const name = e.target.value.toLowerCase().trim();
             if (userAvatars[name]) {
-                const portraitUrl = `https://cf-st.sc-cdn.net/3d/render/${userAvatars[name]}.webp?trim=circle&scale=0&ua=2`;
-                bitmojiDiv.innerHTML = `<img src="${portraitUrl}" style="width:100px; height:100px; border-radius:50%;">`;
+                bitmojiDiv.innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[name]}.webp?trim=circle&scale=0&ua=2" style="width:100px; height:100px; border-radius:50%;">`;
             } else {
                 bitmojiDiv.innerHTML = `<span style="font-size: 60px;">🌹</span>`;
             }

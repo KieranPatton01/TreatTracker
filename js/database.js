@@ -4,8 +4,8 @@ import { firebaseConfig, mapboxToken } from './config.js';
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 let currentMarkers = {};
+
 const userAvatars = {
     "kieran": "10226724-246135883_7-s5-v1",
     "libby": "37237988-100513394046_2416-s5-v1",
@@ -14,12 +14,14 @@ const userAvatars = {
 
 export function initMap() {
     mapboxgl.accessToken = mapboxToken;
-    return new mapboxgl.Map({
+    const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/light-v11',
         center: [-3.1883, 55.9533],
         zoom: 12
     });
+    setTimeout(() => { map.resize(); }, 500);
+    return map;
 }
 
 export function dropKiss(map, username) {
@@ -35,42 +37,77 @@ export function dropKiss(map, username) {
 export function listenForKisses(map, onStatsUpdate) {
     onValue(ref(db, 'kisses'), (snapshot) => {
         const data = snapshot.val();
+        if (!data) return;
         
-        if (!data) {
-            if (onStatsUpdate) onStatsUpdate({ "kieran": 0, "libby": 0, "isla": 0 });
-            return;
-        }
-
         const kissStats = {};
-        document.getElementById('kiss-count').innerText = Object.keys(data).length;
+        const entries = Object.entries(data);
+        document.getElementById('kiss-count').innerText = entries.length;
 
-        Object.keys(data).forEach(id => {
-            const kiss = data[id];
+        // Find the oldest kiss (Crown Logic)
+        let oldestId = null;
+        let oldestTime = Infinity;
+
+        entries.forEach(([id, kiss]) => {
+            if (kiss.timestamp && kiss.timestamp < oldestTime) {
+                oldestTime = kiss.timestamp;
+                oldestId = id;
+            }
+        });
+
+        entries.forEach(([id, kiss]) => {
             const name = kiss.user.toLowerCase().trim();
-            
             kissStats[name] = (kissStats[name] || 0) + 1;
+            
+            const isOldest = (id === oldestId);
+            
+            // Check if we need to redraw marker (e.g. if it became a crown)
+            if (currentMarkers[id]) {
+                const currentEl = currentMarkers[id].getElement();
+                const currentIcon = currentEl.innerText;
+                const shouldBeIcon = isOldest ? '👑' : '💋';
+                
+                if (currentIcon !== shouldBeIcon) {
+                    currentMarkers[id].remove();
+                    delete currentMarkers[id];
+                }
+            }
 
             if (!currentMarkers[id]) {
                 const el = document.createElement('div');
                 el.className = 'kiss-marker';
-                el.innerText = '💋';
+                el.innerText = isOldest ? '👑' : '💋';
                 
+                if (isOldest) {
+                    el.style.fontSize = '40px';
+                    el.style.zIndex = '100';
+                }
+
+                // Prepare Popup Data
                 const bitID = userAvatars[name];
-                const standingUrl = bitID 
-                    ? `https://render.bitstrips.com/v2/cpanel/${bitID}.png?transparent=1&width=80`
-                    : null;
                 
-                const popupContent = standingUrl 
-                    ? `<div style="text-align:center;"><img src="${standingUrl}" style="width:60px;"><br><strong>${name}</strong></div>`
-                    : `<div style="text-align:center;"><strong>${name}</strong></div>`;
+                // Format Date
+                let dateString = "Just now";
+                if (kiss.timestamp) {
+                    const date = new Date(kiss.timestamp);
+                    dateString = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                // Popup HTML: Small Bitmoji, Name, Date
+                const popupHTML = `
+                    <div style="text-align:center; font-family:'Helvetica Neue', sans-serif;">
+                        ${bitID ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2" style="width:50px; border-radius:50%; margin-bottom:5px;">` : ''}
+                        <h3 style="margin:2px 0; color:#ff4d6d; text-transform:capitalize; font-size:16px;">${name}</h3>
+                        <p style="margin:0; font-size:11px; color:#888;">${dateString}</p>
+                    </div>
+                `;
 
                 currentMarkers[id] = new mapboxgl.Marker(el)
                     .setLngLat([kiss.lng, kiss.lat])
-                    .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent))
+                    .setPopup(new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(popupHTML))
                     .addTo(map);
             }
         });
-        
+
         if (onStatsUpdate) onStatsUpdate(kissStats);
     });
 }

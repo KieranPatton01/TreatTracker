@@ -1,20 +1,30 @@
-/* Core Map Layout */
+/* Ensure the map fills the entire screen */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 #map {
     position: absolute;
     top: 0;
     bottom: 0;
     width: 100%;
+    height: 100%;
     z-index: 1;
 }
 
-/* Hamburger Menu */
+/* Hamburger Menu Button - Restored Size */
 #menu-btn {
     background: white;
     border: none;
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     border-radius: 12px;
-    font-size: 22px;
+    font-size: 24px;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     display: flex;
@@ -23,90 +33,33 @@
     transition: transform 0.2s;
 }
 
-.menu-dropdown {
-    display: none;
-    position: absolute;
-    top: 55px;
-    left: 0;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    padding: 8px 0;
-    z-index: 2001;
-    min-width: 200px;
+#menu-btn:active {
+    transform: scale(0.9);
 }
 
-.menu-dropdown a {
-    display: block;
-    padding: 12px 20px;
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    font-size: 14px;
-    white-space: nowrap;
-}
-
-/* Kiss Count Bubble */
-#kiss-count-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: white;
-    padding: 10px 18px;
-    border-radius: 50px;
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    z-index: 1000;
-    color: #ff4d6d;
-}
-
-/* Centered Notification */
-#notification-wrapper {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-    width: 90%;
-    max-width: 400px;
-    pointer-events: none;
-}
-
-.snap-header {
-    background: white;
-    padding: 12px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s;
-}
-
-.snap-header.hidden {
-    transform: translateY(-150%) scale(0.9);
-    opacity: 0;
-}
-
-/* FIXED GLASS-MORPHIC BUTTON */
+/* FIXED CENTERED GLASS-MORPHIC BUTTON */
 #drop-marker {
     position: fixed;
     bottom: 30px;
-    right: 20px;
-    width: 70px;
-    height: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 75px;
+    height: 75px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    padding: 0;
+    margin: 0;
     background: rgba(255, 255, 255, 0.4); 
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     border: 2px solid rgba(255, 77, 109, 0.3); 
     border-radius: 50%;
     font-size: 35px;
-    /* Essential Centering */
     display: flex;
     align-items: center;
     justify-content: center;
-    line-height: 0;
-    padding: 0;
-    margin: 0;
+    line-height: 1;
     cursor: pointer;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -114,5 +67,59 @@
 }
 
 #drop-marker:active {
-    transform: scale(0.9);
+    transform: translateX(-50%) scale(0.9);
+}
+
+/* Dropdown Menu Styles */
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    min-width: 220px;
+    z-index: 2001;
+    overflow: hidden;
+}
+
+.menu-dropdown a {
+    display: block;
+    padding: 14px 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.menu-dropdown a:hover {
+    background: #f8f8f8;
+}
+
+/* Typing Animation */
+@keyframes flash-green {
+    0% { opacity: 1; color: #00ca4e; }
+    50% { opacity: 0.5; color: #008f37; }
+    100% { opacity: 1; color: #00ca4e; }
+}
+
+.typing-status {
+    font-size: 11px;
+    font-weight: bold;
+    animation: flash-green 1.5s infinite;
+}
+
+/* Modal Styling */
+.modal-overlay { 
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 2999; 
+}
+
+.custom-modal {
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2); z-index: 3000; text-align: center;
 }

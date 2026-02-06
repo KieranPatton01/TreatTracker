@@ -11,53 +11,56 @@
     
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/map.css" />
-    
-    <style>
-        #stats-modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); z-index: 3000; text-align: center;
-        }
-        .stats-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; padding: 5px; }
-        .stats-row img { width: 45px; height: 45px; border-radius: 50%; background: #f0f0f0; object-fit: contain; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 2999; }
-    </style>
 </head>
 <body>
 
     <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
         <button id="menu-btn">☰</button>
         <div id="menu-dropdown" class="menu-dropdown">
-            <a href="#" id="view-stats" style="white-space: nowrap;">🏆 Kiss Leaderboard</a>
+            <a href="#" id="view-stats">🏆 Kiss Leaderboard</a>
             <a href="game.html">🍓 Catch the Tart</a>
+            <a href="https://github.com/KieranPatton01/TreatTracker" target="_blank">💻 View on GitHub</a>
+            <a href="#" id="view-help">❓ How to use</a>
             <hr style="border: 0.5px solid #eee; margin: 5px 0;">
-            <a href="#" id="logout-btn" class="logout">🚪 Log Out</a>
+            <a href="#" id="logout-btn" class="logout" style="color: #ff4d6d;">🚪 Log Out</a>
         </div>
     </div>
 
     <div id="modal-overlay" class="modal-overlay"></div>
-    <div id="stats-modal">
+    
+    <div id="stats-modal" class="custom-modal">
         <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Smoocher Board</h2>
-        <div id="stats-content">Counting kisses...</div>
-        <button id="close-stats" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Close</button>
+        <div id="stats-content">Counting...</div>
+        <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Close</button>
+    </div>
+
+    <div id="help-modal" class="custom-modal">
+        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Quick Tutorial</h2>
+        <div style="text-align: left; font-size: 14px; line-height: 1.6; color: #444;">
+            <p>📍 <b>Dropping Kisses:</b> Tap the 💋 button at the bottom to mark a kiss at your current map center.</p>
+            <p>👑 <b>The Crown:</b> The oldest kiss on the map wears a crown!</p>
+            <p>🏆 <b>Leaderboard:</b> Check the menu to see who is winning the smooch race!</p>
+        </div>
+        <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Got it!</button>
     </div>
 
     <div id="kiss-count-container">Kisses: <span id="kiss-count">0</span></div>
 
     <div id="notification-wrapper">
         <div id="login-banner" class="snap-header">
-            <div id="user-bitmoji-small" class="snap-profile-pic">💋</div>
+            <div id="user-bitmoji-small" class="snap-profile-pic"></div>
             <div class="snap-info">
                 <span class="snap-title">Treat Tracker 2.0</span>
-                <span id="welcome-text" class="snap-status">● Active</span>
+                <span id="welcome-text" class="typing-status"></span>
             </div>
         </div>
     </div>
 
     <div id="map"></div>
-    
     <button id="drop-marker">💋</button>
 
     <script type="module">
@@ -72,58 +75,56 @@
             "isla": "37237988-139859680_123-s5-v1"
         };
 
+        // UI Element Selection
+        const overlay = document.getElementById('modal-overlay');
+        const statsModal = document.getElementById('stats-modal');
+        const helpModal = document.getElementById('help-modal');
+        const mBtn = document.getElementById('menu-btn');
+        const mDrop = document.getElementById('menu-dropdown');
+
+        // Setup Bitmoji
+        if (userAvatars[user.toLowerCase()]) {
+            document.getElementById('user-bitmoji-small').innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[user.toLowerCase()]}.webp?trim=circle&scale=0&ua=2" style="width:100%; border-radius:50%;">`;
+        }
+        document.getElementById('welcome-text').innerText = `${user.toUpperCase()} IS TYPING...`;
+
         listenForKisses(map, (stats) => {
             const content = document.getElementById('stats-content');
             content.innerHTML = '';
-            const sortedUsers = Object.entries(stats).sort((a,b) => b[1] - a[1]);
-            sortedUsers.forEach(([name, count]) => {
+            Object.entries(stats).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
                 const bitID = userAvatars[name.toLowerCase()];
-                const imgTag = bitID 
-                    ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2">`
-                    : `<div style="width:45px; height:45px; display:flex; align-items:center; justify-content:center; background:#eee; border-radius:50%;">👤</div>`;
-
-                content.innerHTML += `
-                    <div class="stats-row">
-                        ${imgTag}
-                        <span style="text-transform: capitalize; flex: 1; text-align: left; margin-left: 15px;">${name}</span>
-                        <span style="color: #ff4d6d; font-weight: bold; font-size: 18px;">${count}</span>
-                    </div>
-                `;
+                const imgTag = bitID ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2" style="width:40px; height:40px; border-radius:50%;">` : `👤`;
+                content.innerHTML += `<div class="stats-row" style="display:flex; align-items:center; margin:10px 0;">${imgTag}<span style="flex:1; text-align:left; margin-left:15px; font-weight:bold;">${name}</span><strong>${count}</strong></div>`;
             });
         });
 
-        const bitmojiSlot = document.getElementById('user-bitmoji-small');
-        if (userAvatars[user.toLowerCase()]) {
-            bitmojiSlot.innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[user.toLowerCase()]}.webp?trim=circle&scale=0&ua=2" style="width:40px; border-radius:50%;">`;
-        }
+        // Drop Kiss Action with Confetti
+        document.getElementById("drop-marker").onclick = () => {
+            dropKiss(map, user);
+            // Trigger Confetti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.8 },
+                colors: ['#ff4d6d', '#ffffff', '#ffb6c1']
+            });
+        };
 
-        document.getElementById('active-user-name')?.innerText = user;
-        document.getElementById('welcome-text').innerText = `● ${user} is active`;
-
-        document.getElementById("drop-marker").onclick = () => dropKiss(map, user);
         document.getElementById('logout-btn').onclick = logout;
 
-        // UI Interactions
-        const mBtn = document.getElementById('menu-btn');
-        const mDrop = document.getElementById('menu-dropdown');
+        // Menu Toggle
         mBtn.onclick = (e) => { e.stopPropagation(); mDrop.style.display = mDrop.style.display === 'block' ? 'none' : 'block'; };
 
-        document.getElementById('view-stats').onclick = () => {
-            document.getElementById('stats-modal').style.display = 'block';
-            document.getElementById('modal-overlay').style.display = 'block';
-        };
-        document.getElementById('close-stats').onclick = () => {
-            document.getElementById('stats-modal').style.display = 'none';
-            document.getElementById('modal-overlay').style.display = 'none';
-        };
+        // Modal Logic
+        document.getElementById('view-stats').onclick = () => { statsModal.style.display = 'block'; overlay.style.display = 'block'; mDrop.style.display = 'none'; };
+        document.getElementById('view-help').onclick = () => { helpModal.style.display = 'block'; overlay.style.display = 'block'; mDrop.style.display = 'none'; };
+        
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.onclick = () => { statsModal.style.display = 'none'; helpModal.style.display = 'none'; overlay.style.display = 'none'; };
+        });
 
         document.onclick = () => { mDrop.style.display = 'none'; };
-        
-        // Hide notification after 7 seconds
-        setTimeout(() => { 
-            const header = document.getElementById("login-banner");
-            if (header) header.classList.add("hidden");
-        }, 7000); 
+        setTimeout(() => { document.getElementById("login-banner").classList.add("hidden"); }, 7000); 
     </script>
 </body>
 </html>
