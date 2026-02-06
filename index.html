@@ -6,67 +6,44 @@
     <title>Log In • Treat Tracker</title>
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/login.css">
-    <link rel="manifest" href="manifest.json" />
 </head>
 <body class="login-body">
     <div class="login-container">
         <div id="bitmoji-container" class="snap-logo-box">
             <span id="placeholder-icon" style="font-size: 60px;">🌹</span>
         </div>
-
         <div class="login-card">
             <h1>Log In</h1>
-            
             <div class="input-group">
-                <label>USERNAME OR EMAIL</label>
-                <input type="text" id="nameInput" autocomplete="off" placeholder="Enter your name">
+                <label>NAME</label>
+                <input type="text" id="nameInput" autocomplete="off" placeholder="Enter name">
             </div>
-
             <div class="input-group">
                 <label>PASSWORD</label>
-                <input type="password" id="passInput" autocomplete="off" placeholder="Enter password">
+                <input type="password" id="passInput" autocomplete="off" placeholder="Password">
             </div>
-
-            <div class="forgot-link">Forgot Password?</div>
-
             <button id="unlockBtn">Log In</button>
         </div>
-        
-        <div class="signup-footer">
-            New to the tracker? <span>Request Access</span>
-        </div>
     </div>
-
     <script type="module">
         import { handleLogin } from './js/auth.js';
-        
         const nameInput = document.getElementById('nameInput');
         const bitmojiDiv = document.getElementById('bitmoji-container');
-
-        // DATABASE OF BITMOJIS
         const userAvatars = {
-            "richard": "10221973-375114771_7-s5-v1",
-            "morag": "9981881-375114771_7-s5-v1",
-            // You can add more IDs here as you find them!
+            "kieran": "10226724-246135883_7-s5-v1",
+            "libby": "37237988-100513394046_2416-s5-v1",
+            "isla": "37237988-139859680_123-s5-v1"
         };
-
         nameInput.addEventListener('input', (e) => {
             const name = e.target.value.toLowerCase().trim();
-            
             if (userAvatars[name]) {
-                bitmojiDiv.innerHTML = `<img src="https://render.bitstrips.com/v2/cpanel/${userAvatars[name]}.png?transparent=1&width=100" class="bitmoji-pop">`;
-            } else if (name === "") {
-                bitmojiDiv.innerHTML = `<span style="font-size: 60px;">🌹</span>`;
+                const portraitUrl = `https://cf-st.sc-cdn.net/3d/render/${userAvatars[name]}.webp?trim=circle&scale=0&ua=2`;
+                bitmojiDiv.innerHTML = `<img src="${portraitUrl}" style="width:100px; height:100px; border-radius:50%;">`;
             } else {
-                // If name is typed but not in our Bitmoji list yet, show a generic heart
-                bitmojiDiv.innerHTML = `<span style="font-size: 60px;" class="bitmoji-pop">💖</span>`;
+                bitmojiDiv.innerHTML = `<span style="font-size: 60px;">🌹</span>`;
             }
         });
-
         document.getElementById('unlockBtn').onclick = handleLogin;
-        document.getElementById('passInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLogin();
-        });
     </script>
 </body>
 </html>

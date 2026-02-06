@@ -11,29 +11,18 @@
     
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
-    
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/map.css" />
     
     <style>
-        /* Testing Status Bar Style */
-        #debug-user-status {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(5px);
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #ff4d6d;
-            z-index: 9999;
-            border: 1px solid #ffebeb;
-            pointer-events: none;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+        #stats-modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); z-index: 3000; text-align: center;
         }
+        .stats-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; padding: 5px; }
+        .stats-row img { width: 45px; height: 45px; border-radius: 50%; background: #f0f0f0; object-fit: contain; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 2999; }
     </style>
 </head>
 <body>
@@ -41,15 +30,24 @@
     <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
         <button id="menu-btn">☰</button>
         <div id="menu-dropdown" class="menu-dropdown">
+            <a href="#" id="view-stats" style="white-space: nowrap;">🏆 Kiss Leaderboard</a>
             <a href="game.html">🍓 Catch the Tart</a>
+            <hr style="border: 0.5px solid #eee; margin: 5px 0;">
             <a href="#" id="logout-btn" class="logout">🚪 Log Out</a>
         </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay"></div>
+    <div id="stats-modal">
+        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Smoocher Board</h2>
+        <div id="stats-content">Counting kisses...</div>
+        <button id="close-stats" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Close</button>
     </div>
 
     <div id="kiss-count-container">Kisses: <span id="kiss-count">0</span></div>
 
     <div id="notification-wrapper">
-        <div class="snap-header">
+        <div id="login-banner" class="snap-header">
             <div id="user-bitmoji-small" class="snap-profile-pic">💋</div>
             <div class="snap-info">
                 <span class="snap-title">Treat Tracker 2.0</span>
@@ -62,50 +60,70 @@
     
     <button id="drop-marker">💋</button>
 
-    <div id="debug-user-status">User: <span id="active-user-name">Loading...</span></div>
-
     <script type="module">
         import { logout } from './js/auth.js';
         import { initMap, listenForKisses, dropKiss } from './js/database.js';
 
-        // Initialize Map & Data
         const map = initMap();
-        listenForKisses(map);
-
-        // Get Session Data
-        const user = localStorage.getItem('currentUsername') || "Unknown";
-        const bitmojis = { 
-            richard: "10221973-375114771_7-s5-v1", 
-            morag: "9981881-375114771_7-s5-v1" 
+        const user = localStorage.getItem('currentUsername') || "guest";
+        const userAvatars = {
+            "kieran": "10226724-246135883_7-s5-v1",
+            "libby": "37237988-100513394046_2416-s5-v1",
+            "isla": "37237988-139859680_123-s5-v1"
         };
 
-        // Update UI with User Identity
-        document.getElementById('active-user-name').innerText = user;
-        document.getElementById('welcome-text').innerText = `● ${user} is active`;
-        
+        listenForKisses(map, (stats) => {
+            const content = document.getElementById('stats-content');
+            content.innerHTML = '';
+            const sortedUsers = Object.entries(stats).sort((a,b) => b[1] - a[1]);
+            sortedUsers.forEach(([name, count]) => {
+                const bitID = userAvatars[name.toLowerCase()];
+                const imgTag = bitID 
+                    ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2">`
+                    : `<div style="width:45px; height:45px; display:flex; align-items:center; justify-content:center; background:#eee; border-radius:50%;">👤</div>`;
+
+                content.innerHTML += `
+                    <div class="stats-row">
+                        ${imgTag}
+                        <span style="text-transform: capitalize; flex: 1; text-align: left; margin-left: 15px;">${name}</span>
+                        <span style="color: #ff4d6d; font-weight: bold; font-size: 18px;">${count}</span>
+                    </div>
+                `;
+            });
+        });
+
         const bitmojiSlot = document.getElementById('user-bitmoji-small');
-        if (bitmojis[user]) {
-            bitmojiSlot.innerHTML = `<img src="https://render.bitstrips.com/v2/cpanel/${bitmojis[user]}.png?transparent=1&width=40" style="width:40px;">`;
+        if (userAvatars[user.toLowerCase()]) {
+            bitmojiSlot.innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[user.toLowerCase()]}.webp?trim=circle&scale=0&ua=2" style="width:40px; border-radius:50%;">`;
         }
 
-        // Action Buttons
+        document.getElementById('active-user-name')?.innerText = user;
+        document.getElementById('welcome-text').innerText = `● ${user} is active`;
+
         document.getElementById("drop-marker").onclick = () => dropKiss(map, user);
         document.getElementById('logout-btn').onclick = logout;
 
-        // Hamburger Menu Logic
+        // UI Interactions
         const mBtn = document.getElementById('menu-btn');
         const mDrop = document.getElementById('menu-dropdown');
-        mBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            mDrop.style.display = mDrop.style.display === 'block' ? 'none' : 'block'; 
+        mBtn.onclick = (e) => { e.stopPropagation(); mDrop.style.display = mDrop.style.display === 'block' ? 'none' : 'block'; };
+
+        document.getElementById('view-stats').onclick = () => {
+            document.getElementById('stats-modal').style.display = 'block';
+            document.getElementById('modal-overlay').style.display = 'block';
         };
-        document.onclick = () => mDrop.style.display = 'none';
+        document.getElementById('close-stats').onclick = () => {
+            document.getElementById('stats-modal').style.display = 'none';
+            document.getElementById('modal-overlay').style.display = 'none';
+        };
+
+        document.onclick = () => { mDrop.style.display = 'none'; };
         
-        // Hide Snap Notification after 4s
+        // Hide notification after 7 seconds
         setTimeout(() => { 
-            const header = document.querySelector(".snap-header");
-            if (header) header.style.transform = "translateY(-250%)"; 
-        }, 4000);
+            const header = document.getElementById("login-banner");
+            if (header) header.classList.add("hidden");
+        }, 7000); 
     </script>
 </body>
 </html>
