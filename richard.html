@@ -1,80 +1,111 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <script>
-            // THE GATEKEEPER: Kicks out anyone not logged in
-            (function () {
-                const loggedIn = localStorage.getItem("isLoggedIn");
-                if (loggedIn !== "true") {
-                    window.location.replace("index.html");
-                }
-            })();
-        </script>
+<head>
+    <script type="module">
+        import { checkAccess } from './js/auth.js';
+        checkAccess();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Treat Tracker</title>
+    
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/map.css" />
+    
+    <style>
+        /* Testing Status Bar Style */
+        #debug-user-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #ff4d6d;
+            z-index: 9999;
+            border: 1px solid #ffebeb;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
 
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <title>Treat Tracker (tt)</title>
+    <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
+        <button id="menu-btn">☰</button>
+        <div id="menu-dropdown" class="menu-dropdown">
+            <a href="game.html">🍓 Catch the Tart</a>
+            <a href="#" id="logout-btn" class="logout">🚪 Log Out</a>
+        </div>
+    </div>
 
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="Kiss Map" />
-        <link rel="apple-touch-icon" href="icon.png" />
-        <link rel="icon" type="image/png" href="icon.png" />
+    <div id="kiss-count-container">Kisses: <span id="kiss-count">0</span></div>
 
-        <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
-        <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
-
-        <link rel="stylesheet" href="style.css" />
-        <link rel="manifest" href="manifest.json" />
-        <meta name="theme-color" content="#ff4d6d" />
-
-        <style>
-            body, html {
-                margin: 0; padding: 0;
-                height: 100%; width: 100%;
-                overflow: hidden;
-                background-color: #fff5f5;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            }
-            #map {
-                position: absolute;
-                top: 0; bottom: 0;
-                width: 100%;
-                z-index: 1;
-            }
-        </style>
-    </head>
-    <body>
-
-        <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
-            <button id="menu-btn">☰</button>
-            <div id="menu-dropdown" class="menu-dropdown">
-                <a href="#" id="stats-btn">📊 Kiss Stats</a>
-                <a href="#" id="help-btn">❓ Help</a>
-                <a href="#" id="about-btn">🏷️ About</a>
-                <a href="#" id="logout-btn" class="logout">🚪 Log Out</a>
+    <div id="notification-wrapper">
+        <div class="snap-header">
+            <div id="user-bitmoji-small" class="snap-profile-pic">💋</div>
+            <div class="snap-info">
+                <span class="snap-title">Treat Tracker 2.0</span>
+                <span id="welcome-text" class="snap-status">● Active</span>
             </div>
         </div>
+    </div>
 
-        <div id="kiss-count-container">
-            Kisses: <span id="kiss-count">0</span>
-        </div>
+    <div id="map"></div>
+    
+    <button id="drop-marker">💋</button>
 
-        <div id="notification-wrapper">
-            <div class="snap-header">
-                <div class="snap-profile-pic">💋</div>
-                <div class="snap-info">
-                    <span class="snap-title">Treat Tracker 2.0</span>
-                    <span class="snap-status">● Morag is typing..</span>
-                </div>
-            </div>
-        </div>
+    <div id="debug-user-status">User: <span id="active-user-name">Loading...</span></div>
 
-        <div id="map"></div>
+    <script type="module">
+        import { logout } from './js/auth.js';
+        import { initMap, listenForKisses, dropKiss } from './js/database.js';
 
-        <button id="drop-marker">💋</button>
+        // Initialize Map & Data
+        const map = initMap();
+        listenForKisses(map);
 
-        <script type="module" src="script.js"></script>
-    </body>
+        // Get Session Data
+        const user = localStorage.getItem('currentUsername') || "Unknown";
+        const bitmojis = { 
+            richard: "10221973-375114771_7-s5-v1", 
+            morag: "9981881-375114771_7-s5-v1" 
+        };
+
+        // Update UI with User Identity
+        document.getElementById('active-user-name').innerText = user;
+        document.getElementById('welcome-text').innerText = `● ${user} is active`;
+        
+        const bitmojiSlot = document.getElementById('user-bitmoji-small');
+        if (bitmojis[user]) {
+            bitmojiSlot.innerHTML = `<img src="https://render.bitstrips.com/v2/cpanel/${bitmojis[user]}.png?transparent=1&width=40" style="width:40px;">`;
+        }
+
+        // Action Buttons
+        document.getElementById("drop-marker").onclick = () => dropKiss(map, user);
+        document.getElementById('logout-btn').onclick = logout;
+
+        // Hamburger Menu Logic
+        const mBtn = document.getElementById('menu-btn');
+        const mDrop = document.getElementById('menu-dropdown');
+        mBtn.onclick = (e) => { 
+            e.stopPropagation(); 
+            mDrop.style.display = mDrop.style.display === 'block' ? 'none' : 'block'; 
+        };
+        document.onclick = () => mDrop.style.display = 'none';
+        
+        // Hide Snap Notification after 4s
+        setTimeout(() => { 
+            const header = document.querySelector(".snap-header");
+            if (header) header.style.transform = "translateY(-250%)"; 
+        }, 4000);
+    </script>
+</body>
 </html>

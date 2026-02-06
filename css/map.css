@@ -1,0 +1,50 @@
+#map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
+
+#kiss-count-container {
+    position: fixed; top: 25px; right: 20px; z-index: 1000;
+    background: white; padding: 8px 15px; border-radius: 20px;
+    font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#drop-marker {
+    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+    z-index: 100; width: 80px; height: 80px; background: #ff4d6d;
+    border: 5px solid white; border-radius: 50%; font-size: 35px;
+    color: white; cursor: pointer; box-shadow: 0 8px 25px rgba(255, 77, 109, 0.4);
+}
+
+#menu-btn {
+    width: 45px; height: 45px; border-radius: 50%;
+    background: white; border: none; font-size: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;
+}
+
+.menu-dropdown {
+    display: none; position: absolute; top: 55px; left: 0;
+    background: white; border-radius: 15px; width: 180px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden;
+}
+
+.menu-dropdown a {
+    display: block; padding: 12px 20px; text-decoration: none;
+    color: #333; font-weight: 500; border-bottom: 1px solid #f0f0f0;
+}
+
+.menu-dropdown a.logout { color: #ff4d4d; }
+
+.snap-header {
+    width: 90%; max-width: 400px; height: 60px;
+    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+    border-radius: 30px; display: flex; align-items: center;
+    padding: 0 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.snap-profile-pic {
+    width: 40px; height: 40px; background: #FFFC00;
+    border-radius: 50%; display: flex; justify-content: center;
+    align-items: center; border: 2px solid #000; margin-right: 12px;
+    overflow: hidden;
+}
+
+.marker { font-size: 30px; cursor: pointer; }

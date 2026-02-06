@@ -1,19 +1,116 @@
 .login-body {
-    display: flex; justify-content: center; align-items: center; height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #fff9fa;
+    margin: 0;
 }
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.snap-logo-box {
+    height: 100px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.snap-logo-box img { height: 90px; width: auto; }
+
+.bitmoji-pop {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 .login-card {
-    background: white; padding: 40px; border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(255, 77, 109, 0.2);
-    text-align: center; width: 90%; max-width: 400px;
+    background: white;
+    padding: 40px 30px;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px rgba(255, 77, 109, 0.1);
+    margin: 0 25px;
 }
-.login-card h1 { color: #ff4d4d; margin-bottom: 10px; }
-.login-card input {
-    width: 100%; padding: 15px; margin: 20px 0;
-    border: 2px solid #ffebeb; border-radius: 15px;
-    font-size: 16px; outline: none; text-align: center;
+
+.login-card h1 {
+    font-weight: 800;
+    font-size: 26px;
+    margin-bottom: 35px;
+    color: #333;
 }
-.login-card button {
-    width: 100%; padding: 15px; border: none;
-    border-radius: 15px; background: #ff4d6d;
-    color: white; font-size: 18px; font-weight: bold; cursor: pointer;
+
+.input-group {
+    text-align: left;
+    margin-bottom: 25px;
 }
+
+.input-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #d1d1d1; /* Even lighter label */
+    margin-bottom: 8px;
+    letter-spacing: 0.8px;
+}
+
+.input-group input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #f0f0f0;
+    padding: 10px 0;
+    font-size: 16px;
+    outline: none;
+    color: #333; /* Actual typed text color */
+    transition: border-color 0.3s;
+}
+
+/* THIS MAKES THE PLACEHOLDER TRANSPARENT/LIGHT */
+.input-group input::placeholder {
+    color: #e0e0e0;
+    font-weight: 400;
+}
+
+.input-group input:focus {
+    border-bottom: 2px solid #ff4d6d;
+}
+
+.forgot-link {
+    font-size: 13px;
+    color: #ff4d6d;
+    margin-bottom: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    opacity: 0.6;
+}
+
+#unlockBtn {
+    width: 100%;
+    max-width: 260px;
+    background-color: #ff4d6d;
+    color: #fff;
+    border: none;
+    padding: 16px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 77, 109, 0.3);
+}
+
+#unlockBtn:active { transform: scale(0.97); }
+
+.signup-footer {
+    margin-top: 35px;
+    font-size: 14px;
+    color: #bbb;
+}
+
+.signup-footer span { color: #ff4d6d; font-weight: 700; }

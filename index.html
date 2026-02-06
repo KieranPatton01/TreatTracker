@@ -3,44 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CVP | Verification Portal</title>
-    <link rel="stylesheet" href="style.css">
-    
+    <title>Log In • Treat Tracker</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/login.css">
     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#ff4d6d" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 <body class="login-body">
-    <div class="login-card">
-        <h1>Cuck or Crush? 🌹</h1>
-        <p>Enter the Secret to Access our Memories</p>
+    <div class="login-container">
+        <div id="bitmoji-container" class="snap-logo-box">
+            <span id="placeholder-icon" style="font-size: 60px;">🌹</span>
+        </div>
+
+        <div class="login-card">
+            <h1>Log In</h1>
+            
+            <div class="input-group">
+                <label>USERNAME OR EMAIL</label>
+                <input type="text" id="nameInput" autocomplete="off" placeholder="Enter your name">
+            </div>
+
+            <div class="input-group">
+                <label>PASSWORD</label>
+                <input type="password" id="passInput" autocomplete="off" placeholder="Enter password">
+            </div>
+
+            <div class="forgot-link">Forgot Password?</div>
+
+            <button id="unlockBtn">Log In</button>
+        </div>
         
-        <input type="password" id="passInput" placeholder="Who is the Rippler?..." autocomplete="off">
-        
-        <button id="unlockBtn" onclick="checkPass()">Unlock</button>
+        <div class="signup-footer">
+            New to the tracker? <span>Request Access</span>
+        </div>
     </div>
 
-    <script>
-        // Allows pressing "Enter" to unlock
-        document.getElementById("passInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                checkPass();
+    <script type="module">
+        import { handleLogin } from './js/auth.js';
+        
+        const nameInput = document.getElementById('nameInput');
+        const bitmojiDiv = document.getElementById('bitmoji-container');
+
+        // DATABASE OF BITMOJIS
+        const userAvatars = {
+            "richard": "10221973-375114771_7-s5-v1",
+            "morag": "9981881-375114771_7-s5-v1",
+            // You can add more IDs here as you find them!
+        };
+
+        nameInput.addEventListener('input', (e) => {
+            const name = e.target.value.toLowerCase().trim();
+            
+            if (userAvatars[name]) {
+                bitmojiDiv.innerHTML = `<img src="https://render.bitstrips.com/v2/cpanel/${userAvatars[name]}.png?transparent=1&width=100" class="bitmoji-pop">`;
+            } else if (name === "") {
+                bitmojiDiv.innerHTML = `<span style="font-size: 60px;">🌹</span>`;
+            } else {
+                // If name is typed but not in our Bitmoji list yet, show a generic heart
+                bitmojiDiv.innerHTML = `<span style="font-size: 60px;" class="bitmoji-pop">💖</span>`;
             }
         });
 
-        function checkPass() {
-            const input = document.getElementById('passInput').value.toLowerCase().trim();
-            if (input) {
-                // 1. SAVE the login state so richard.html lets them in
-                localStorage.setItem('isLoggedIn', 'true');
-                
-                // 2. Redirect to the page (e.g., richard.html)
-                window.location.href = input + ".html";
-            } else {
-                alert("Please enter a hint!");
-            }
-        }
+        document.getElementById('unlockBtn').onclick = handleLogin;
+        document.getElementById('passInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
     </script>
 </body>
 </html>

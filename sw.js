@@ -1,35 +1,18 @@
-const CACHE_NAME = 'tt-v103'; // Jump to a high version number
+const CACHE_NAME = 'tt-v200';
 const assets = [
+  './',
   './index.html',
   './richard.html',
+  './game.html',
   './404.html',
-  './style.css',
-  './script.js',
+  './css/main.css',
+  './css/map.css',
+  './css/login.css',
+  './js/config.js',
+  './js/auth.js',
+  './js/database.js',
   './manifest.json',
   './icon.png'
 ];
 
-// Force the new Service Worker to take over immediately
-self.addEventListener('install', event => {
-  self.skipWaiting(); 
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(assets))
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-    ))
-  );
-});
-
-// This tells the app to load from the cache if offline
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
-});
+// ... rest of your sw.js code remains the same ...
