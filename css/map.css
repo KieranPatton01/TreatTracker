@@ -5,6 +5,11 @@ html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden;
 /* HIDE MAPBOX LOGO AND ATTRIBUTION */
 .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
 
+/* Position Mapbox controls (like find location) flush below counter */
+.mapboxgl-ctrl-top-right {
+    top: 60px !important; /* Push down below the counter bubble */
+}
+
 /* Kiss Counter - Top Center */
 #kiss-count-container {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -40,8 +45,8 @@ html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden;
     font-size: 40px; cursor: pointer; z-index: 1000; box-shadow: 0 8px 32px rgba(0,0,0,0.2); 
 }
 
-/* Kiss Markers on Map */
-.kiss-marker { cursor: pointer; font-size: 30px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+/* Kiss Markers on Map - Added Z-index fix */
+.kiss-marker { cursor: pointer; font-size: 30px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); z-index: 10; /* Ensure above location dot */ }
 
 /* Snapchat-style Notification Banner */
 #notification-wrapper {

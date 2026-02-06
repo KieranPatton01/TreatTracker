@@ -14,10 +14,10 @@
             "type": "image/png"
         }
     ],
-    "start_url": "/TreatTracker/richard.html",
+    "start_url": "./richard.html",
     "display": "standalone",
     "theme_color": "#ff07e2",
     "background_color": "#fff5f5",
     "orientation": "portrait",
-    "scope": "/"
+    "scope": "./"
 }
