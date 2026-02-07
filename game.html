@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Lost in Love</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./icon.png">
     <style>
         body { 
             text-align: center; 
@@ -23,7 +25,6 @@
         h1 { font-size: 80px; margin: 0; }
         p { font-size: 20px; margin-bottom: 30px; font-weight: bold; }
 
-        /* The Game Area */
         #game-container {
             position: relative;
             width: 100%;
@@ -37,7 +38,7 @@
 
         #target-wrapper {
             position: absolute;
-            width: 60px; /* Control image size here */
+            width: 60px;
             height: 60px;
             cursor: pointer;
             user-select: none;
@@ -75,18 +76,18 @@
     </style>
 </head>
 <body>
-    <h1></h1>
+    <h1>💔</h1>
     <p>Cuck, Man Mark 3 Tarts To Continue</p>
 
     <div id="game-container">
         <div id="target-wrapper">
-            <img src="tart.png" id="game-image" alt="strawberry tart">
+            <img src="./tart.png" id="game-image" alt="strawberry tart">
         </div>
     </div>
 
     <div id="score-board">Tarts Caught: <span id="score">0</span>/3</div>
 
-    <a href="index.html" class="btn-home">I'm a Cuck'</a>
+    <a href="richard.html" class="btn-home">I'm a Cuck</a>
 
     <script>
         const target = document.getElementById('target-wrapper');
@@ -106,7 +107,6 @@
             target.style.top = newY + 'px';
         }
 
-        // Move target every second
         let gameInterval = setInterval(moveTarget, 1000);
 
         target.addEventListener('click', () => {
@@ -114,21 +114,18 @@
             scoreSpan.innerText = score;
             
             if (score >= 3) {
-                // Change to a "fixed" image for the win state
-                // img.src = "fixed-heart.png"; 
                 target.style.transform = "scale(5)";
                 target.style.opacity = "0";
                 target.style.transition = "all 0.5s ease-out";
                 
                 setTimeout(() => {
-                    window.location.href = "index.html";
+                    window.location.href = "richard.html";
                 }, 600);
             } else {
                 moveTarget();
             }
         });
 
-        // Initial move
         moveTarget();
     </script>
 </body>

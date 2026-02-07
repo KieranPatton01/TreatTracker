@@ -1,7 +1,6 @@
 import { logout } from './auth.js';
 import { initMap, listenForKisses, dropKiss } from './database.js';
 
-// 1. Initialize Map
 const map = initMap();
 const user = localStorage.getItem('currentUsername') || "guest";
 
@@ -11,7 +10,6 @@ const userAvatars = {
     "isla": "37237988-139859680_123-s5-v1"
 };
 
-// 2. Elements
 const overlay = document.getElementById('modal-overlay');
 const statsModal = document.getElementById('stats-modal');
 const helpModal = document.getElementById('help-modal');
@@ -19,7 +17,6 @@ const mBtn = document.getElementById('menu-btn');
 const mDrop = document.getElementById('menu-dropdown');
 const banner = document.getElementById("login-banner");
 
-// 3. User Identity
 if (userAvatars[user.toLowerCase()]) {
     const picContainer = document.getElementById('user-bitmoji-small');
     if (picContainer) {
@@ -29,7 +26,6 @@ if (userAvatars[user.toLowerCase()]) {
 const welcomeText = document.getElementById('welcome-text');
 if (welcomeText) welcomeText.innerText = `${user.toUpperCase()} IS TYPING...`;
 
-// 4. Data Sync
 listenForKisses(map, (stats) => {
     const content = document.getElementById('stats-content');
     if (content) {
@@ -42,11 +38,61 @@ listenForKisses(map, (stats) => {
     }
 });
 
-// 5. Buttons
 document.getElementById("drop-marker").onclick = () => {
     dropKiss(map, user);
     if (window.confetti) {
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 }, colors: ['#ff4d6d', '#ffffff', '#ffb6c1'] });
+    }
+};
+
+// NEW: Current Location Button
+document.getElementById('locate-btn').onclick = () => {
+    const btn = document.getElementById('locate-btn');
+    
+    // Add loading state
+    btn.style.transform = 'scale(0.9)';
+    btn.innerText = '⌛';
+    
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                
+                // Fly to user's location with smooth animation
+                map.flyTo({
+                    center: [longitude, latitude],
+                    zoom: 15,
+                    pitch: 45,
+                    bearing: 0,
+                    speed: 1.2,
+                    curve: 1.5,
+                    essential: true
+                });
+                
+                // Reset button
+                setTimeout(() => {
+                    btn.innerText = '📍';
+                    btn.style.transform = 'scale(1)';
+                }, 500);
+            },
+            (error) => {
+                // Error handling
+                console.error('Location error:', error);
+                btn.innerText = '❌';
+                
+                // Show brief error message
+                alert('Could not get your location. Please enable location services.');
+                
+                setTimeout(() => {
+                    btn.innerText = '📍';
+                    btn.style.transform = 'scale(1)';
+                }, 1500);
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by your browser.');
+        btn.innerText = '📍';
+        btn.style.transform = 'scale(1)';
     }
 };
 
@@ -55,7 +101,6 @@ document.getElementById('logout-btn').onclick = (e) => {
     logout();
 };
 
-// 6. UI Logic
 if (mBtn) {
     mBtn.onclick = (e) => { 
         e.stopPropagation(); 
