@@ -18,12 +18,20 @@
 </head>
 <body>
 
+    <div id="stats-header">
+        <div class="glass-counter">
+            <span class="counter-emoji">💋</span>
+            <span class="counter-label">KISS COUNT</span>
+            <span id="kiss-count">0</span>
+        </div>
+    </div>
+
     <div id="menu-wrapper" style="position: fixed; top: 20px; left: 20px; z-index: 2000;">
         <button id="menu-btn">☰</button>
-        <div id="menu-dropdown" class="menu-dropdown">
+        <div id="menu-dropdown" class="menu-dropdown" style="display: none;">
             <a href="#" id="view-stats">🏆 Kiss Leaderboard</a>
             <a href="game.html">🍓 Catch the Tart</a>
-            <a href="https://github.com/KieranPatton01/TreatTracker" target="_blank">💻 View on GitHub</a>
+            <a href="https://github.com/KieranPatton01/TreatTracker" target="_blank">💻 View Slop on GitHub</a>
             <a href="#" id="view-help">❓ How to use</a>
             <hr style="border: 0.5px solid #eee; margin: 5px 0;">
             <a href="#" id="logout-btn" class="logout" style="color: #ff4d6d;">🚪 Log Out</a>
@@ -33,22 +41,20 @@
     <div id="modal-overlay" class="modal-overlay"></div>
     
     <div id="stats-modal" class="custom-modal">
-        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Smoocher Board</h2>
-        <div id="stats-content">Counting...</div>
+        <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Sook Stats</h2>
+        <div id="stats-content">Shit Wifi/I can't Code</div>
         <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Close</button>
     </div>
 
     <div id="help-modal" class="custom-modal">
         <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Quick Tutorial</h2>
         <div style="text-align: left; font-size: 14px; line-height: 1.6; color: #444;">
-            <p>📍 <b>Dropping Kisses:</b> Tap the 💋 button at the bottom to mark a kiss at your current map center.</p>
-            <p>👑 <b>The Crown:</b> The oldest kiss on the map wears a crown!</p>
+            <p>📍 <b>Dropping Kisses:</b> Tap the 💋 button at the bottom to mark a kiss at your current location.</p>
+            <p>👑 <b>The Crown:</b> Our first ever kiss wears the crown!</p>
             <p>🏆 <b>Leaderboard:</b> Check the menu to see who is winning the smooch race!</p>
         </div>
         <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Got it!</button>
     </div>
-
-    <div id="kiss-count-container">Kisses: <span id="kiss-count">0</span></div>
 
     <div id="notification-wrapper">
         <div id="login-banner" class="snap-header">
@@ -63,68 +69,6 @@
     <div id="map"></div>
     <button id="drop-marker">💋</button>
 
-    <script type="module">
-        import { logout } from './js/auth.js';
-        import { initMap, listenForKisses, dropKiss } from './js/database.js';
-
-        const map = initMap();
-        const user = localStorage.getItem('currentUsername') || "guest";
-        const userAvatars = {
-            "kieran": "10226724-246135883_7-s5-v1",
-            "libby": "37237988-100513394046_2416-s5-v1",
-            "isla": "37237988-139859680_123-s5-v1"
-        };
-
-        // UI Element Selection
-        const overlay = document.getElementById('modal-overlay');
-        const statsModal = document.getElementById('stats-modal');
-        const helpModal = document.getElementById('help-modal');
-        const mBtn = document.getElementById('menu-btn');
-        const mDrop = document.getElementById('menu-dropdown');
-
-        // Setup Bitmoji
-        if (userAvatars[user.toLowerCase()]) {
-            document.getElementById('user-bitmoji-small').innerHTML = `<img src="https://cf-st.sc-cdn.net/3d/render/${userAvatars[user.toLowerCase()]}.webp?trim=circle&scale=0&ua=2" style="width:100%; border-radius:50%;">`;
-        }
-        document.getElementById('welcome-text').innerText = `${user.toUpperCase()} IS TYPING...`;
-
-        listenForKisses(map, (stats) => {
-            const content = document.getElementById('stats-content');
-            content.innerHTML = '';
-            Object.entries(stats).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
-                const bitID = userAvatars[name.toLowerCase()];
-                const imgTag = bitID ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2" style="width:40px; height:40px; border-radius:50%;">` : `👤`;
-                content.innerHTML += `<div class="stats-row" style="display:flex; align-items:center; margin:10px 0;">${imgTag}<span style="flex:1; text-align:left; margin-left:15px; font-weight:bold;">${name}</span><strong>${count}</strong></div>`;
-            });
-        });
-
-        // Drop Kiss Action with Confetti
-        document.getElementById("drop-marker").onclick = () => {
-            dropKiss(map, user);
-            // Trigger Confetti
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.8 },
-                colors: ['#ff4d6d', '#ffffff', '#ffb6c1']
-            });
-        };
-
-        document.getElementById('logout-btn').onclick = logout;
-
-        // Menu Toggle
-        mBtn.onclick = (e) => { e.stopPropagation(); mDrop.style.display = mDrop.style.display === 'block' ? 'none' : 'block'; };
-
-        // Modal Logic
-        document.getElementById('view-stats').onclick = () => { statsModal.style.display = 'block'; overlay.style.display = 'block'; mDrop.style.display = 'none'; };
-        document.getElementById('view-help').onclick = () => { helpModal.style.display = 'block'; overlay.style.display = 'block'; mDrop.style.display = 'none'; };
-        
-        document.querySelectorAll('.close-btn').forEach(btn => {
-            btn.onclick = () => { statsModal.style.display = 'none'; helpModal.style.display = 'none'; overlay.style.display = 'none'; };
-        });
-
-        document.onclick = () => { mDrop.style.display = 'none'; };
-        setTimeout(() => { document.getElementById("login-banner").classList.add("hidden"); }, 7000); 
-    </script>
+    <script type="module" src="./js/map.js"></script>
 </body>
 </html>
