@@ -7,19 +7,29 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Treat Tracker</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#ff07e2">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="TreatTracker">
+    
+    <!-- iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TreatTracker">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="./icon.png">
     <link rel="apple-touch-icon" href="./icon.png">
-    <title>Treat Tracker</title>
+    <link rel="apple-touch-startup-image" href="./icon.png">
     
+    <!-- Mapbox GL JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
+    
+    <!-- Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/map.css" />
 </head>
@@ -45,14 +55,14 @@
         </div>
     </div>
 
-    <!-- NEW: Current Location Button -->
+    <!-- Current Location Button -->
     <button id="locate-btn" title="Go to my location">📍</button>
 
     <div id="modal-overlay" class="modal-overlay"></div>
     
     <div id="stats-modal" class="custom-modal">
         <h2 style="color: #ff4d6d; margin: 0 0 15px 0;">Sook Stats</h2>
-        <div id="stats-content">Shit Wifi/I can't Code</div>
+        <div id="stats-content">Loading...</div>
         <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Close</button>
     </div>
 
@@ -63,6 +73,7 @@
             <p>👑 <b>The Crown:</b> Our first ever kiss wears the crown!</p>
             <p>🏆 <b>Leaderboard:</b> Check the menu to see who is winning the smooch race!</p>
             <p>🧭 <b>Find Yourself:</b> Tap the 📍 button in the top-right to fly to your current location!</p>
+            <p>📱 <b>Install App:</b> Add this to your home screen for the full experience!</p>
         </div>
         <button class="close-btn" style="margin-top: 20px; background: #ff4d6d; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer;">Got it!</button>
     </div>
@@ -81,16 +92,5 @@
     <button id="drop-marker">💋</button>
 
     <script type="module" src="./js/map.js"></script>
-    
-    <script>
-        // Register service worker for PWA functionality
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registered:', reg))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-            });
-        }
-    </script>
 </body>
 </html>

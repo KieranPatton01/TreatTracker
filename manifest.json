@@ -16,7 +16,7 @@
             "purpose": "any maskable"
         }
     ],
-    "start_url": "./index.html",
+    "start_url": "./richard.html",
     "display": "standalone",
     "theme_color": "#ff07e2",
     "background_color": "#fff5f5",

@@ -2,15 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Log In • Treat Tracker</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#ff07e2">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="TreatTracker">
+    
+    <!-- iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TreatTracker">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="./icon.png">
     <link rel="apple-touch-icon" href="./icon.png">
-    <title>Log In • Treat Tracker</title>
+    <link rel="apple-touch-startup-image" href="./icon.png">
+    
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/login.css">
     <style>
@@ -39,14 +46,14 @@
         
         .footer-text { 
             font-size: 13px; 
-            color: black; /* Black text as requested */
+            color: black;
             font-weight: 500;
             white-space: nowrap;
         }
         
         .footer-text a { 
-            color: #ff4d6d; /* Pink for Contact Us */
-            text-decoration: none; /* No underline */
+            color: #ff4d6d;
+            text-decoration: none;
             font-weight: bold; 
         }
     </style>
@@ -93,17 +100,6 @@
             }
         });
         document.getElementById('unlockBtn').onclick = handleLogin;
-    </script>
-    
-    <script>
-        // Register service worker for PWA functionality
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registered:', reg))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-            });
-        }
     </script>
 </body>
 </html>

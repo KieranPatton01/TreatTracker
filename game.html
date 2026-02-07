@@ -2,10 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>404 - Lost in Love</title>
+    
+    <!-- PWA Meta Tags -->
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="./icon.png">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./icon.png">
+    
     <style>
         body { 
             text-align: center; 
@@ -28,12 +36,14 @@
         #game-container {
             position: relative;
             width: 100%;
+            max-width: 500px;
             height: 300px;
             background: white;
             border-radius: 20px;
             border: 3px dashed #ffb6c1;
             overflow: hidden;
             cursor: crosshair;
+            touch-action: none;
         }
 
         #target-wrapper {
@@ -66,12 +76,22 @@
             border-radius: 50px; 
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #score-board {
             font-size: 14px;
             margin-top: 10px;
             color: #888;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 60px; }
+            p { font-size: 16px; }
+            #game-container { height: 250px; }
         }
     </style>
 </head>
@@ -109,7 +129,9 @@
 
         let gameInterval = setInterval(moveTarget, 1000);
 
-        target.addEventListener('click', () => {
+        // Handle both click and touch events
+        function handleHit(e) {
+            e.preventDefault();
             score++;
             scoreSpan.innerText = score;
             
@@ -124,7 +146,10 @@
             } else {
                 moveTarget();
             }
-        });
+        }
+
+        target.addEventListener('click', handleHit);
+        target.addEventListener('touchstart', handleHit);
 
         moveTarget();
     </script>
