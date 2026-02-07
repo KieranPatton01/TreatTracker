@@ -23,7 +23,7 @@ export async function handleLogin() {
     const passInput = document.getElementById('passInput');
     
     const name = nameInput.value.toLowerCase().trim();
-    const password = passInput.value; // This will now accept your 123456
+    const password = passInput.value;
     const ghostEmail = `${name}@placeholder.com`;
 
     try {
@@ -38,7 +38,7 @@ export async function handleLogin() {
     } catch (error) {
         console.error("Login Error:", error.code);
         if (error.code === 'auth/invalid-credential') {
-            alert("Incorrect name or password. Remember: Password is 123456");
+            alert("Incorrect name or password - Contact Kieran for reset email perhaps");
         } else {
             alert("Error: " + error.message);
         }

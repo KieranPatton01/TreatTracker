@@ -222,7 +222,7 @@ html, body {
 /* Drop Kiss Button */
 #drop-marker {
     position: fixed;
-    bottom: 30px;
+    bottom: max(30px, calc(30px + env(safe-area-inset-bottom)));
     left: 50%;
     transform: translateX(-50%);
     width: 80px;

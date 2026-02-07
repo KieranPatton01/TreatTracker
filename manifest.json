@@ -17,8 +17,7 @@
         }
     ],
     "start_url": "./richard.html",
-    "display": "standalone",
-    "theme_color": "#ff07e2",
+    "display": "fullscreen",
     "background_color": "#fff5f5",
     "orientation": "portrait",
     "scope": "./",
