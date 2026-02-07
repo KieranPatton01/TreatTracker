@@ -45,56 +45,39 @@ document.getElementById("drop-marker").onclick = () => {
     }
 };
 
-// NEW: Current Location Button
-document.getElementById('locate-btn').onclick = () => {
-    const btn = document.getElementById('locate-btn');
-    
-    // Add loading state
-    btn.style.transform = 'scale(0.9)';
-    btn.innerText = '⌛';
-    
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                
-                // Fly to user's location with smooth animation
-                map.flyTo({
-                    center: [longitude, latitude],
-                    zoom: 15,
-                    pitch: 45,
-                    bearing: 0,
-                    speed: 1.2,
-                    curve: 1.5,
-                    essential: true
-                });
-                
-                // Reset button
-                setTimeout(() => {
-                    btn.innerText = '📍';
-                    btn.style.transform = 'scale(1)';
-                }, 500);
-            },
-            (error) => {
-                // Error handling
-                console.error('Location error:', error);
-                btn.innerText = '❌';
-                
-                // Show brief error message
-                alert('Could not get your location. Please enable location services.');
-                
-                setTimeout(() => {
-                    btn.innerText = '📍';
-                    btn.style.transform = 'scale(1)';
-                }, 1500);
-            }
-        );
-    } else {
-        alert('Geolocation is not supported by your browser.');
-        btn.innerText = '📍';
-        btn.style.transform = 'scale(1)';
-    }
-};
+// Current Location Button logic
+const locateBtn = document.getElementById('locate-btn');
+if (locateBtn) {
+    locateBtn.onclick = () => {
+        locateBtn.style.transform = 'scale(0.9)';
+        locateBtn.innerText = '⌛';
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    map.flyTo({
+                        center: [position.coords.longitude, position.coords.latitude],
+                        zoom: 15,
+                        pitch: 45,
+                        speed: 1.2,
+                        essential: true
+                    });
+                    setTimeout(() => {
+                        locateBtn.innerText = '📍';
+                        locateBtn.style.transform = 'scale(1)';
+                    }, 500);
+                },
+                (error) => {
+                    locateBtn.innerText = '❌';
+                    setTimeout(() => {
+                        locateBtn.innerText = '📍';
+                        locateBtn.style.transform = 'scale(1)';
+                    }, 1500);
+                }
+            );
+        }
+    };
+}
 
 document.getElementById('logout-btn').onclick = (e) => {
     e.preventDefault();

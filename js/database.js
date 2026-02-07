@@ -12,15 +12,17 @@ const userAvatars = {
     "isla": "37237988-139859680_123-s5-v1"
 };
 
+let allMarkers = []; 
+
 export function initMap() {
     mapboxgl.accessToken = mapboxToken;
     const map = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/mapbox/outdoors-v12", 
-        center: [0, 20],  // Centered on world, slightly north
-        zoom: 1.5,        // Zoomed out to see whole globe
-        pitch: 0,         // Flat view for world perspective
-        bearing: 0,       // No rotation
+        style: "mapbox://styles/mapbox/light-v12", 
+        center: [-3.1883, 55.9533],
+        zoom: 12,
+        pitch: 0,
+        bearing: 0,
         antialias: true
     });
 
@@ -36,12 +38,14 @@ export function initMap() {
             type: "fill-extrusion",
             minzoom: 14,
             paint: {
-                "fill-extrusion-color": ["interpolate", ["linear"], ["get", "height"], 0, "#ffffff", 50, "#ffb6c1", 100, "#ff4d6d"],
+                "fill-extrusion-color": "#f0f0f0",
                 "fill-extrusion-height": ["get", "height"],
                 "fill-extrusion-base": ["get", "min_height"],
-                "fill-extrusion-opacity": 0.8
+                "fill-extrusion-opacity": 0.6
             }
         }, labelLayerId);
+        
+        map.setPaintProperty('water', 'fill-color', '#c8e7ff');
     });
 
     return map;
@@ -57,143 +61,106 @@ export function listenForKisses(map, callback) {
             return;
         }
 
-        const oldMarkers = document.getElementsByClassName('kiss-marker');
-        while(oldMarkers[0]) {
-            oldMarkers[0].parentNode.removeChild(oldMarkers[0]);
-        }
-
-        // Also remove cluster markers
-        const oldClusters = document.getElementsByClassName('cluster-marker');
-        while(oldClusters[0]) {
-            oldClusters[0].parentNode.removeChild(oldClusters[0]);
-        }
-
         const userStats = {};
         const entries = Object.entries(data);
-        const totalKisses = entries.length;
-
-        // Convert to GeoJSON for clustering
+        
+        // Convert Firebase data to GeoJSON for Mapbox
         const features = entries.map(([key, kiss], index) => {
             const name = (kiss.user || "unknown").toLowerCase().trim();
             userStats[name] = (userStats[name] || 0) + 1;
-
             return {
                 type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [kiss.lng, kiss.lat]
-                },
-                properties: {
-                    id: key,
-                    name: name,
-                    date: kiss.date,
-                    isFirst: index === 0
-                }
+                geometry: { type: 'Point', coordinates: [kiss.lng, kiss.lat] },
+                properties: { id: key, name: name, date: kiss.date, isFirst: index === 0 }
             };
         });
 
-        // Simple clustering algorithm
-        const clusters = clusterMarkers(features, map);
+        const geojson = { type: 'FeatureCollection', features: features };
 
-        // Render clusters and individual markers
-        clusters.forEach(cluster => {
-            if (cluster.count > 1) {
-                // Create cluster marker
-                const el = document.createElement("div");
-                el.className = "cluster-marker";
-                el.innerHTML = `<div class="cluster-inner">${cluster.count}</div>`;
-                
-                new mapboxgl.Marker({ 
-                    element: el,
-                    anchor: 'center'
-                })
-                    .setLngLat(cluster.coordinates)
-                    .addTo(map);
-            } else {
-                // Create individual marker
-                const kiss = cluster.features[0].properties;
-                const el = document.createElement("div");
-                el.className = "kiss-marker";
-                el.innerHTML = kiss.isFirst ? "👑" : "💋";
+        // Update or Create Source
+        if (map.getSource('kisses')) {
+            map.getSource('kisses').setData(geojson);
+        } else {
+            map.addSource('kisses', {
+                type: 'geojson',
+                data: geojson,
+                cluster: true,
+                clusterMaxZoom: 14, // Max zoom to cluster points on
+                clusterRadius: 50 // Radius of each cluster when clustering points
+            });
+        }
 
-                const bitID = userAvatars[kiss.name];
-                const faceHtml = bitID 
-                    ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2" style="width:60px; height:60px; border-radius:50%; border:3px solid #ff4d6d; margin-bottom: 5px;">`
-                    : `<span style="font-size:30px;">💋</span>`;
-
-                const popup = new mapboxgl.Popup({ 
-                    offset: 40, 
-                    closeButton: false,
-                    maxWidth: '200px',
-                    className: 'custom-popup'
-                }).setHTML(`
-                    <div style="text-align:center; display:flex; flex-direction:column; align-items:center; padding: 5px;">
-                        ${faceHtml}
-                        <strong style="text-transform:capitalize; font-size:14px; color:#333;">${kiss.name}</strong>
-                        <p style="margin:2px 0 0; font-size:10px; color:#888;">${kiss.date}</p>
-                    </div>
-                `);
-
-                new mapboxgl.Marker({ 
-                    element: el,
-                    anchor: 'bottom'
-                })
-                    .setLngLat(cluster.coordinates)
-                    .setPopup(popup)
-                    .addTo(map);
-            }
-        });
+        renderMarkers(map);
 
         if (countEl) {
-            countEl.innerText = totalKisses;
+            countEl.innerText = entries.length;
             countEl.parentElement.classList.add('bump');
             setTimeout(() => countEl.parentElement.classList.remove('bump'), 200);
         }
-
         if (callback) callback(userStats);
     });
+
+    // Re-render markers on move/zoom
+    map.on('moveend', () => renderMarkers(map));
 }
 
-// Simple clustering function
-function clusterMarkers(features, map) {
-    const zoom = map.getZoom();
-    const clusterRadius = zoom < 10 ? 100 : (zoom < 15 ? 50 : 30); // pixels
-    
-    const clusters = [];
-    const processed = new Set();
+function renderMarkers(map) {
+    if (!map.getSource('kisses')) return;
 
-    features.forEach((feature, i) => {
-        if (processed.has(i)) return;
+    // Use Mapbox's built-in query for what's currently on screen
+    map.getSource('kisses').getClusterExpansionZoom = (clusterId) => {}; // dummy for logic
 
-        const point = map.project(feature.geometry.coordinates);
-        const cluster = {
-            coordinates: feature.geometry.coordinates,
-            features: [feature],
-            count: 1
-        };
+    // To keep it simple and highly performant for mobile:
+    const newMarkers = {};
+    const features = map.querySourceFeatures('kisses');
 
-        // Find nearby markers
-        features.forEach((otherFeature, j) => {
-            if (i === j || processed.has(j)) return;
+    features.forEach(f => {
+        const coords = f.geometry.coordinates;
+        const id = f.properties.cluster ? `cluster-${f.properties.cluster_id}` : `point-${f.properties.id}`;
+        
+        if (newMarkers[id]) return;
 
-            const otherPoint = map.project(otherFeature.geometry.coordinates);
-            const distance = Math.sqrt(
-                Math.pow(point.x - otherPoint.x, 2) + 
-                Math.pow(point.y - otherPoint.y, 2)
-            );
+        const el = document.createElement('div');
+        if (f.properties.cluster) {
+            el.className = 'cluster-marker';
+            el.innerHTML = `<div class="cluster-inner">${f.properties.point_count}</div>`;
+            el.onclick = () => {
+                map.flyTo({ center: coords, zoom: map.getZoom() + 2 });
+            };
+        } else {
+            el.className = 'kiss-marker';
+            el.innerHTML = f.properties.isFirst ? "👑" : "💋";
+            
+            const bitID = userAvatars[f.properties.name];
+            const faceHtml = bitID 
+                ? `<img src="https://cf-st.sc-cdn.net/3d/render/${bitID}.webp?trim=circle&scale=0&ua=2" style="width:60px; height:60px; border-radius:50%; border:3px solid #ff4d6d; margin-bottom: 5px;">`
+                : `<span style="font-size:30px;">💋</span>`;
 
-            if (distance < clusterRadius) {
-                cluster.features.push(otherFeature);
-                cluster.count++;
-                processed.add(j);
-            }
-        });
+            const popup = new mapboxgl.Popup({ offset: 40, closeButton: false })
+                .setHTML(`
+                    <div style="text-align:center; display:flex; flex-direction:column; align-items:center; padding: 5px;">
+                        ${faceHtml}
+                        <strong style="text-transform:capitalize; font-size:14px; color:#333;">${f.properties.name}</strong>
+                        <p style="margin:2px 0 0; font-size:10px; color:#888;">${f.properties.date}</p>
+                    </div>
+                `);
 
-        processed.add(i);
-        clusters.push(cluster);
+            new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+                .setLngLat(coords)
+                .setPopup(popup)
+                .addTo(map);
+            
+            newMarkers[id] = true;
+            return;
+        }
+
+        new mapboxgl.Marker({ element: el }).setLngLat(coords).addTo(map);
+        newMarkers[id] = true;
     });
 
-    return clusters;
+    // Clean up old markers
+    allMarkers.forEach(m => m.remove());
+    allMarkers = Object.values(newMarkers); // This is a simplified tracker
 }
 
 export function dropKiss(map, username) {
